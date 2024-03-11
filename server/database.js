@@ -1,4 +1,5 @@
-import { MongoClient } from "mongodb";
+//import { MongoClient } from "mongodb";
+import { mongoose } from "mongoose"
 import * as dotenv from 'dotenv';
 
 // RAW QUERIES (e.g. `node createDatabase.js`)
@@ -6,13 +7,14 @@ import * as dotenv from 'dotenv';
 // SERVER (e.g. `node app.js`)
 dotenv.config();
 
-const connectionString = process.env.ATLAS_URI;
-const client = new MongoClient(connectionString);
-let conn;
-try {
-  conn = await client.connect();
-} catch(e) {
-  console.error(e);
+export default function connectDB() {
+  const url = process.env.ATLAS_URI;
+ 
+  try {
+    mongoose.connect(url);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
+  return;
 }
-let db = conn.db("Notion");
-export default db;

@@ -1,6 +1,7 @@
 import express from "express";
 import dotnev from "dotenv";
 import cors from "cors";
+import fileUpload from "express-fileupload";
 import { router as notesRouter } from './routes/notes.js'
 
 const app = express();
@@ -10,6 +11,7 @@ app.use(cors({
     origin: true,
 }));
 
+app.use(fileUpload());
 app.use(express.json());
 app.use('/notes', notesRouter)
 
