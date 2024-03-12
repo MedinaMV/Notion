@@ -11,3 +11,82 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.app {
+  display: grid;
+  grid-template-columns: 210px auto;
+  height: 100vh;
+}
+
+.lateral {
+  width: 210px; /* Aumentamos el ancho de la barra lateral */
+  background-color: #333;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.note {
+  background-color: #f2f2f2; /* Para visualizar el espacio ocupado por el div note */
+  height: 100vh;
+  padding: 10px;
+}
+
+.noteButtonContainer {
+  margin-top: auto; /* Coloca el botón al final de la barra lateral */
+  display: flex;
+  justify-content: center;
+}
+
+/* Estilo del botón */
+.noteButton {
+  margin-top: auto;
+  margin-bottom: 50px;
+  height: 50px;
+  width: 100%;
+  /*border-radius: 20%; Hace que el botón sea redondeado */
+  background-color: #333;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 24px;
+}
+
+.noteButton:hover {
+  background-color: #808080;
+}
+
+.noteRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px;
+}
+
+.noteTitle {
+  margin-right: 90px;
+}
+
+.noteRow:hover{
+  background-color: #808080;
+  cursor: pointer;
+}
+
+.buttonsContainer {
+  display: flex;
+  gap: 5px; /* Espacio entre los botones */
+}
+
+.buttonsContainer button {
+  border-radius: 30%;
+  height: 30px;
+  background-color: #333;
+  border: none;
+}
+
+.buttonsContainer button:hover {
+  background-color: #b8b8b8;
+  border: none;
+  cursor: pointer;
+}
