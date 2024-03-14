@@ -11,20 +11,18 @@ export default function App() {
   ];
 
   const PARAGRAPHS = [
-    { text: 'Patatas 700 g', id: 1 },
-    { text: 'Cebolla 300 g', id: 2 },
-    { text: 'Huevos 6 ', id: 3 },
-    { text: 'Sal', id: 4 }
-  ];
-
-  const IMAGES = [
+    { type: 'paragraph', text: 'Patatas 700 g', id: 1 },
+    { type: 'paragraph', text: 'Cebolla 300 g', id: 2 },
+    { type: 'paragraph', text: 'Huevos 6 ', id: 3 },
+    { type: 'paragraph', text: 'Sal', id: 4 },
+    { type: 'image', text: 'https://i.imgur.com/yXOvdOSs.jpg', id: 5 },
   ];
 
   return (
     <div className="app">
       <LateralMenu noterows={NOTEROWS}/>
       <div className="note">
-        <Note Allparagraphs={PARAGRAPHS} AllImages={IMAGES}/>
+        <Note Title={"Tortilla de Patatas"} Elements={PARAGRAPHS} />
       </div>
     </div>
   );
@@ -45,7 +43,10 @@ function LateralMenu({ noterows }) {
         <h2> My Notes </h2>
       </div>
       {rows.map(row => (
-        <NoteRow noteRow={row}/>
+        <NoteRow 
+        noteRow={row}
+        key={row.id}
+        />
       ))}
       <div className="noteButtonContainer">
         <button onClick={newNoteRow} className="noteButton"> ➕ New Note </button>
@@ -57,61 +58,48 @@ function LateralMenu({ noterows }) {
 function NoteRow({ noteRow }) {
   return (
     <div className="noteRow">
-      <p  className="noteRowTitle"> { noteRow.title } </p>
+      <p className="noteRowTitle" contentEditable> { noteRow.title } </p>
       <button className='noteRowButton'> 🔗 </button>
       <button className='noteRowButton'> ❌ </button>
     </div>
   );
 }
 
-function Note({Allparagraphs, AllImages}) {
-  const [paragraphs, setParagraphs] = useState(Allparagraphs);
-  const [images, setImages] = useState(AllImages);
-
-  function newImage(){
-    setImages([...images, <ImageUploader />])
-  }
+function Note({Title, Elements}) {
+  const [elements, setParagraphs] = useState(Elements);
 
   function newParagraph(){
-    setParagraphs([...paragraphs, <Paragraph />])
+    setParagraphs([...elements, <Paragraph />]);
   }
-
-  const title = 'Tortilla de Patatas'
 
   return (
   <div className='noteContent'>
-    <p contentEditable> {title} </p>
-    {paragraphs.map(paragraph => (
+    <p contentEditable> {Title} </p>
+    {elements.map(element => (
       <>
         <Paragraph 
-        text={paragraph.text}/>
-        <br/> 
-      </>
-    ))}
-    {images.map(image => (
-      <>
-        <ImageUploader />
+        key={element.id}
+        text={element.text}
+        type={element.type}/>
         <br/> 
       </>
     ))}
     <div>
       <button className='paragraphButton' onClick={newParagraph}> New Paragraph </button>
-      <button className='paragraphButton' onClick={newImage}> New Image </button>
     </div>
   </div>
   );
 }
 
-function Paragraph({text}) {
-  return (
-    <div className='paragraphStyle'>
-      <textarea placeholder='Your text goes here'>{text}</textarea>
-    </div>
-  );
-}
+function Paragraph({type, text}) {
+  const [image, setImage] = useState(text);
+  const [showImageInput, setShowImageInput] = useState(type === 'image' ? true : false);
 
-function ImageUploader() {
-  const [image, setImage] = useState(null);
+  function handleChange(event) {
+    if(event.target.value === '/image') {
+      setShowImageInput(true);
+    }
+  }
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -124,16 +112,16 @@ function ImageUploader() {
     }
   };
 
-  return (
-    <div>
-      {image ? (
-        <img src={image} alt="Uploaded" style={{ maxWidth: '100%', maxHeight: '300px' }} />
+  return(
+    <div className='paragraphStyle'>
+      {showImageInput ? (
+        image ? (
+          <img src={image} alt="Uploaded" style={{ maxWidth: '100%', maxHeight: '300px' }} />
+        ) : (
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+        )
       ) : (
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-        />
+        <textarea onChange={handleChange} placeholder='Your text goes here'>{text}</textarea>
       )}
     </div>
   );

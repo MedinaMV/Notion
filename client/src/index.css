@@ -18,11 +18,6 @@ code {
   height: 100vh;
 }
 
-#root {
-  display: flex;
-  height: 100vh;
-}
-
 .lateral {
   width: 210px; /* Aumentamos el ancho de la barra lateral */
   background-color: #333;
@@ -33,7 +28,6 @@ code {
 
 .note {
   background-color: whitesmoke; /* Para visualizar el espacio ocupado por el div note */
-  height: 100vh;
   padding: 10px;
 }
 
@@ -115,13 +109,14 @@ code {
 /* CSS related with the Paragraph component */
 
 .paragraphStyle{
-  height: 40px;
+  height: auto;
+  min-height: 40px;
 }
 
 .paragraphStyle textArea{
   border-color: #dddddd;
   width: 100%;
-  height: 90%;
+  height: auto;
   resize: none;
   min-height: 40px;
 }
