@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React from 'react';
 import './App.css';
 
 export default function App() {
@@ -29,12 +29,24 @@ export default function App() {
 }
 
 function LateralMenu({ noterows }) {
-  const [rows, setRows] = useState(noterows);
+  const [rows, setRows] = React.useState(noterows);
   
-  function newNoteRow() {
-    var titulo = prompt('Title of the Note');
-    var newRow = {title: titulo, id: 0};
-    setRows([...rows, newRow ])
+  async function handleClick() {
+    var input = prompt('Set a title for your new Note');
+    
+    fetch('/notes/create' , {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({title: input}) 
+    }).then(response => response.json())
+      .then(data => {
+        var newRow = {title: input, id: data.id};
+        manageNoteRows(newRow);
+      })
+  }
+
+  function manageNoteRows(newRow){
+    newRow ? setRows([...rows, newRow ]) : setRows(rows.slice(0, -1));
   }
 
   return (
@@ -46,27 +58,45 @@ function LateralMenu({ noterows }) {
         <NoteRow 
         noteRow={row}
         key={row.id}
+        noteId={row.id}
+        manageNoteRows={manageNoteRows}
         />
       ))}
       <div className="noteButtonContainer">
-        <button onClick={newNoteRow} className="noteButton"> ➕ New Note </button>
+        <button onClick={handleClick} className="noteButton"> ➕ New Note </button>
       </div>
     </div>
   );
 }
 
-function NoteRow({ noteRow }) {
+function NoteRow({ noteRow, noteId, manageNoteRows}) {
+
+  function handleClick() {
+    console.log(noteId);
+  }
+
+  function deleteNote() {
+    if(window.confirm('Are you sure about deleting this note?')){
+      fetch(`/notes/${noteId}/delete`, {
+        method: 'DELETE',
+        headers: { 'Content-type': 'application/json' }
+      }).then(response => response.json())
+        .then(data => console.log(data))
+    }
+    manageNoteRows(null);
+  }
+
   return (
-    <div className="noteRow">
-      <p className="noteRowTitle" contentEditable> { noteRow.title } </p>
+    <div onClick={handleClick} className="noteRow">
+      <p className="noteRowTitle"> { noteRow.title } </p>
       <button className='noteRowButton'> 🔗 </button>
-      <button className='noteRowButton'> ❌ </button>
+      <button onClick={deleteNote} className='noteRowButton'> ❌ </button>
     </div>
   );
 }
 
 function Note({Title, Elements}) {
-  const [elements, setParagraphs] = useState(Elements);
+  const [elements, setParagraphs] = React.useState(Elements);
 
   function newParagraph(){
     setParagraphs([...elements, <Paragraph />]);
@@ -80,7 +110,8 @@ function Note({Title, Elements}) {
         <Paragraph 
         key={element.id}
         text={element.text}
-        type={element.type}/>
+        type={element.type}
+        elementId={element.id}/>
         <br/> 
       </>
     ))}
@@ -91,9 +122,9 @@ function Note({Title, Elements}) {
   );
 }
 
-function Paragraph({type, text}) {
-  const [image, setImage] = useState(text);
-  const [showImageInput, setShowImageInput] = useState(type === 'image' ? true : false);
+function Paragraph({type, text, elementId}) {
+  const [image, setImage] = React.useState(text);
+  const [showImageInput, setShowImageInput] = React.useState(type === 'image' ? true : false);
 
   function handleChange(event) {
     if(event.target.value === '/image') {

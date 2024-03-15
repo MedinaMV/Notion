@@ -27,7 +27,7 @@ code {
 }
 
 .note {
-  background-color: whitesmoke; /* Para visualizar el espacio ocupado por el div note */
+  background-color: white; /* Para visualizar el espacio ocupado por el div note */
   padding: 10px;
 }
 
