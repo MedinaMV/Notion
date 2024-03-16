@@ -2,10 +2,17 @@ import express from 'express';
 import Note from '../models/notes.js'
 import connectDB from "../database.js";
 import path from 'path';
+import  { ImgurClient } from 'imgur';
+import fs from 'fs';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const router = express.Router();
 connectDB();
+
+const imgur = new ImgurClient({
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET
+});
 
 /*  
  *
@@ -44,11 +51,31 @@ router.post('/:id/addImage', async (req, res) => {
     if(!image) {
         res.status(400).send({ message: 'No image attached!' })
     }
-    const destinationPath = path.join(__dirname, '..', 'upload', image.name)
-    image.mv(destinationPath);
-    note.images.push({content: destinationPath});
-    await note.save();
-    res.status(200).send();
+
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", "Client-ID "+process.env.CLIENT_ID);
+
+    const blob = new Blob([image.data]);
+    const formdata = new FormData();
+    formdata.append("image", blob, image.name);
+    formdata.append("title", "Simple upload");
+    formdata.append("description", "This is a simple image upload in Imgur");
+
+    const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: formdata,
+        redirect: 'follow'
+    };
+
+    const request = await fetch("https://api.imgur.com/3/image", requestOptions);
+    const response = await request.json();
+
+    console.log(response.data.link);
+    note.images.push({ content: response.data.link });
+    note.save();
+
+    res.status(200).send({ ok: true, url: response.data.link });
 });
 
 /*  
@@ -63,13 +90,39 @@ router.post('/:id/addParagraph', async (req, res) => {
         res.status(400).send({ message: 'No note selected' });
     }else {
         const note = await Note.findById(noteId);
-        const paragraph = req.body.paragraph;
-        if(!paragraph){
-            res.status(400).send({ message: 'No paragraph received' })
-        }
-        note.paragraphs.push({content: paragraph});
+        note.paragraphs.push({content: ''});
         await note.save();
-        res.status(200).send({ message: 'Paragraph inserted correctly' });
+        const lastParagraph = note.paragraphs.reduce((elementGreaterTimestamp, actualElement) => {
+            if (actualElement.creation_time > elementGreaterTimestamp.creation_time) {
+                return actualElement;
+            } else {
+                return elementGreaterTimestamp;
+            }
+        });
+        res.status(200).send({ message: 'Paragraph inserted correctly', id: lastParagraph.id});
+    }
+});
+
+/*
+ *
+    Method for updating an existing paragraph of a specific Note.
+ *
+*/
+router.post('/:id/:element_id/editParagraph', async (req, res) => {
+    const noteId = req.params.id;
+    const element_id = req.params.element_id;
+    const { paragraph } = req.body;
+    if(!noteId || !element_id) {
+        res.status(400).send({ message: 'No note or paragraph selected' });
+    }else {
+        const note = await Note.findById(noteId);
+        note.paragraphs.map(element => {
+            if(element.id === element_id){
+                element.content = paragraph;
+            }
+        });
+        note.save();
+        res.status(200).send({message: 'Paragraph updated correctly'});
     }
 });
 
@@ -113,7 +166,7 @@ router.get('/getAll', (req, res) => {
     TODO Cristian.
  *
  */
-router.get('/getNote', (req, res) => {
+router.get('/:id/getNote', (req, res) => {
 
 });
 

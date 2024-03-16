@@ -3,6 +3,16 @@ import './App.css';
 
 export default function App() {
 
+  const [noteSelected, setNoteSelected] = React.useState(null);
+
+  function renderNote (title, paragraphs) {
+    setNoteSelected(<div className="note"><Note Title={/*title*/"Tortilla de Patatas"} Elements={/*paragraphs*/PARAGRAPHS} /></div>);
+  }
+
+  /*const noterows = async () => {
+    await fetch('/notes/getAll').json();
+  } */
+
   const NOTEROWS = [
     { title: 'Tortilla de Patatas', id: 1 },
     { title: 'Lomo con Pimientos', id: 2 },
@@ -20,15 +30,15 @@ export default function App() {
 
   return (
     <div className="app">
-      <LateralMenu noterows={NOTEROWS}/>
+      <LateralMenu noterows={NOTEROWS} renderNote={renderNote}/>
       <div className="note">
-        <Note Title={"Tortilla de Patatas"} Elements={PARAGRAPHS} />
+        {noteSelected}
       </div>
     </div>
   );
 }
 
-function LateralMenu({ noterows }) {
+function LateralMenu({ noterows, renderNote }) {
   const [rows, setRows] = React.useState(noterows);
   
   async function handleClick() {
@@ -58,8 +68,8 @@ function LateralMenu({ noterows }) {
         <NoteRow 
         noteRow={row}
         key={row.id}
-        noteId={row.id}
         manageNoteRows={manageNoteRows}
+        renderNote={renderNote}
         />
       ))}
       <div className="noteButtonContainer">
@@ -69,15 +79,17 @@ function LateralMenu({ noterows }) {
   );
 }
 
-function NoteRow({ noteRow, noteId, manageNoteRows}) {
+function NoteRow({ noteRow, manageNoteRows, renderNote}) {
 
-  function handleClick() {
-    console.log(noteId);
+  async function handleClick() {
+    console.log(noteRow.id);
+    //const data = (await fetch(`/notes/${noteRow.id}/getNote`)).json();
+    renderNote(/*noteRow.title,data*/);
   }
 
   function deleteNote() {
     if(window.confirm('Are you sure about deleting this note?')){
-      fetch(`/notes/${noteId}/delete`, {
+      fetch(`/notes/${noteRow.id}/delete`, {
         method: 'DELETE',
         headers: { 'Content-type': 'application/json' }
       }).then(response => response.json())
@@ -95,11 +107,19 @@ function NoteRow({ noteRow, noteId, manageNoteRows}) {
   );
 }
 
-function Note({Title, Elements}) {
+function Note({Title, Elements, noteId}) {
   const [elements, setParagraphs] = React.useState(Elements);
 
-  function newParagraph(){
-    setParagraphs([...elements, <Paragraph />]);
+  function newParagraph(event){
+    const flag = event.target.getAttribute('data');
+    if (flag === 'paragraph'){
+      fetch(`/note/${noteId}addParagraph`, {
+        method: 'POST',
+        headers: { 'Content-type' : 'application/json' } 
+      }).then(response => response.json())
+        .then(data => console.log(data));
+    }
+    setParagraphs([...elements, { type: flag, text: '', id: 99 }]);
   }
 
   return (
@@ -111,35 +131,34 @@ function Note({Title, Elements}) {
         key={element.id}
         text={element.text}
         type={element.type}
-        elementId={element.id}/>
+        noteId={noteId}/>
         <br/> 
       </>
     ))}
     <div>
-      <button className='paragraphButton' onClick={newParagraph}> New Paragraph </button>
+      <button className='paragraphButton' onClick={newParagraph} data='paragraph'> New Paragraph </button>
+      <button className='paragraphButton' onClick={newParagraph} data='image'> New Image </button>
     </div>
   </div>
   );
 }
 
-function Paragraph({type, text, elementId}) {
+function Paragraph({type, text, noteId}) {
   const [image, setImage] = React.useState(text);
-  const [showImageInput, setShowImageInput] = React.useState(type === 'image' ? true : false);
+  const showImageInput = (type === 'image' ? true : false);
 
-  function handleChange(event) {
-    if(event.target.value === '/image') {
-      setShowImageInput(true);
-    }
-  }
-
-  const handleImageChange = (event) => {
+  const handleImageChange = async (event) => {
+    const formData = new FormData();
     const file = event.target.files[0];
+    formData.append('image', file);
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      const request = await fetch(`/notes/65f5d28bb169d2c233bddecd/addImage`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const response = await request.json();
+      setImage(response.url);
     }
   };
 
@@ -152,7 +171,7 @@ function Paragraph({type, text, elementId}) {
           <input type="file" accept="image/*" onChange={handleImageChange} />
         )
       ) : (
-        <textarea onChange={handleChange} placeholder='Your text goes here'>{text}</textarea>
+        <textarea placeholder='Your text goes here'>{text}</textarea>
       )}
     </div>
   );
