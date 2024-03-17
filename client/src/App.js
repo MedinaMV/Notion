@@ -26,6 +26,7 @@ export default function App() {
     { type: 'paragraph', text: 'Huevos 6 ', id: 3 },
     { type: 'paragraph', text: 'Sal', id: 4 },
     { type: 'image', text: 'https://i.imgur.com/yXOvdOSs.jpg', id: 5 },
+    { type: 'list', text: ['Elemento de ejemplo 1', 'Elemento de ejemplo2', 'Elemento de ejemplo 3'], id: 6 }
   ];
 
   return (
@@ -113,7 +114,7 @@ function Note({Title, Elements, noteId}) {
   function newParagraph(event){
     const flag = event.target.getAttribute('data');
     if (flag === 'paragraph'){
-      fetch(`/note/${noteId}addParagraph`, {
+      fetch(`/note/${noteId}/addParagraph`, {
         method: 'POST',
         headers: { 'Content-type' : 'application/json' } 
       }).then(response => response.json())
@@ -131,21 +132,24 @@ function Note({Title, Elements, noteId}) {
         key={element.id}
         text={element.text}
         type={element.type}
-        noteId={noteId}/>
+        noteId={noteId}
+        elements={Elements}/>
         <br/> 
       </>
     ))}
     <div>
       <button className='paragraphButton' onClick={newParagraph} data='paragraph'> New Paragraph </button>
       <button className='paragraphButton' onClick={newParagraph} data='image'> New Image </button>
+      <button className='paragraphButton' onClick={newParagraph} data='list'> New List </button>
     </div>
   </div>
   );
 }
 
-function Paragraph({type, text, noteId}) {
+function Paragraph({type, text, noteId, elements}) {
   const [image, setImage] = React.useState(text);
   const showImageInput = (type === 'image' ? true : false);
+  const isListElement = (type === 'list' ? true : false);
 
   const handleImageChange = async (event) => {
     const formData = new FormData();
@@ -156,7 +160,6 @@ function Paragraph({type, text, noteId}) {
         method: 'POST',
         body: formData
       });
-
       const response = await request.json();
       setImage(response.url);
     }
@@ -171,8 +174,46 @@ function Paragraph({type, text, noteId}) {
           <input type="file" accept="image/*" onChange={handleImageChange} />
         )
       ) : (
-        <textarea placeholder='Your text goes here'>{text}</textarea>
+        isListElement ? (
+          <ListElement elements={elements} noteId={noteId}/>
+        ) : (
+          <textarea placeholder='Your text goes here'>{text}</textarea>
+        )
       )}
+    </div>
+  );
+}
+
+function ListElement({elements, noteId}) {
+
+  const items = elements.find(element => element.type === 'list');
+
+  let listItems = [];
+  items.text.forEach(item => {
+    listItems.push(<li>{item}</li>);
+  });
+
+  const [list, setList] = React.useState(listItems);
+  const [item, setItem] = React.useState(null);
+
+  const addElement = async () => {
+    const formData = new FormData();
+    formData.append('element', item);
+    //const request = await fetch(`/notes/${noteId}/${listId}/addListElement`);
+    const request = await fetch(`/notes/65f5d28bb169d2c233bddecd/65f6eddd16f3dfdd3679c084/addListElement`, {
+      method: 'POST', body: formData
+    });
+    const response = await request.json();
+    setList([...list, <li key={response.id}>{item}</li>]);
+  }
+
+  return(
+    <div>
+      <div>
+        <input type='text' onChange={(e) => setItem(e.target.value)} placeholder='Add your task'></input>
+        <button onClick={addElement}> Add </button>
+      </div>
+      <ul>{ list }</ul>
     </div>
   );
 }

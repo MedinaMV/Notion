@@ -14,7 +14,7 @@ const noteSchema = new mongoose.Schema({
     }],
     lists: [{
         type: { type: String, default: 'list' },
-        items: [{ type: String }],
+        items: [{ content: { type: String } }],
         creation_time: { type: Date, default: Date.now }
     }]
 });

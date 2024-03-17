@@ -1,18 +1,9 @@
 import express from 'express';
 import Note from '../models/notes.js'
 import connectDB from "../database.js";
-import path from 'path';
-import  { ImgurClient } from 'imgur';
-import fs from 'fs';
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const router = express.Router();
 connectDB();
-
-const imgur = new ImgurClient({
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET
-});
 
 /*  
  *
@@ -101,6 +92,44 @@ router.post('/:id/addParagraph', async (req, res) => {
         });
         res.status(200).send({ message: 'Paragraph inserted correctly', id: lastParagraph.id});
     }
+});
+
+/*
+ *
+    Method for adding a list to a specific Note.
+ *
+*/
+router.post('/:id/addList', async (req, res) => {
+    const noteId = req.params.id;
+    if(!noteId) {
+        res.status(400).send({ message: 'No note selected' });
+    }else {
+        const note = await Note.findById(noteId);
+        note.lists.push({});
+        await note.save();
+        res.status(200).send({ message: 'List inserted successfully', id: note.lists[note.lists.length - 1].id});
+    }
+});
+
+/*
+ *
+    Method for adding a element to a list of a specific Note.
+ *
+*/
+router.post('/:id/:list_id/addListElement', async (req, res) => {
+    const noteId = req.params.id;
+    const listId = req.params.list_id;
+    if(!noteId) {
+        res.status(400).send({ message: 'No note selected' });
+    }
+    if(!req.body.element) {
+        res.status(400).send({ message: 'No element sent!' });
+    }
+    const { element } = req.body;
+    const note = await Note.findById(noteId);
+    note.lists.find((list) => list.id === listId).items.push({content: element});
+    await note.save();
+    res.status(200).send({ message: 'Element inserted successfully to the list' });
 });
 
 /*
