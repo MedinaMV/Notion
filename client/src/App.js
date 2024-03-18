@@ -4,13 +4,18 @@ import './App.css';
 export default function App() {
   const [noteSelected, setNoteSelected] = React.useState(null);
 
-  console.log(noteSelected);
+
   return (
     <div className="app">
-      <LateralMenu setNoteSelected={setNoteSelected}/>
+      <LateralMenu setNoteSelected={setNoteSelected} />
       <div className="note">
         {noteSelected && (
-          <Note Title={noteSelected.title} Elements={noteSelected.paragraphs} noteId={noteSelected.noteId} setNoteSelected={setNoteSelected}/>
+          <Note 
+            title={noteSelected.title}
+            elements={noteSelected.paragraphs}
+            noteId={noteSelected.noteId} 
+            setNoteSelected={setNoteSelected}
+          />
         )}
       </div>
     </div>
@@ -19,12 +24,11 @@ export default function App() {
 
 function LateralMenu({ setNoteSelected }) {
   const [rows, setRows] = React.useState([]);
-
   React.useEffect(() => {
     (async () => {
       const request = await fetch('/notes/getAll');
       const response = await request.json();
-      setRows(response.notes)
+      setRows(response.notes ?? [])
     })(); 
   }, []);  
   
@@ -69,12 +73,14 @@ function LateralMenu({ setNoteSelected }) {
 function NoteRow({ noteRow, manageNoteRows, setNoteSelected }) {
 
   async function handleClick() {
-    const urlSearchParams = new URLSearchParams();
-    urlSearchParams.append('id', noteRow._id);
-    window.history.pushState(null, '', `?${urlSearchParams.toString()}`);
     const request = await fetch(`/notes/${noteRow._id}/getNote`);
     const response = await request.json();
-    setNoteSelected({title: noteRow.title, paragraphs: response.elements, noteId: noteRow._id});
+
+    setNoteSelected({ 
+      title: noteRow.title, 
+      paragraphs: response.elements, 
+      noteId: noteRow._id 
+    });
   }
 
   function deleteNote() {
@@ -97,42 +103,52 @@ function NoteRow({ noteRow, manageNoteRows, setNoteSelected }) {
   );
 }
 
-function Note({Title, Elements, noteId, setNoteSelected}) {
- 
+function Note({ title, elements, noteId, setNoteSelected }) {
+
   async function newParagraph(event){
     const flag = event.target.getAttribute('data');
     let Id = '-1';
-    if (flag === 'paragraph'){
+    if (flag === 'paragraph') {
       const request = await fetch(`/notes/${noteId}/addParagraph`, { method: 'POST', headers: { 'Content-type' : 'application/json' }});
       const body = await request.json();
       Id = body._id;
-      setNoteSelected([...Elements, { type: flag, content: '', _id: Id }]);
-    }else if(flag === 'list') {
+      
+      let newElements = elements;
+      newElements.push({ type: flag, content: '', _id: Id });
+
+      setNoteSelected(prevState => ({ ...prevState, elements: newElements }));
+    } else if (flag === 'list') {
       const request = await fetch(`/notes/${noteId}/addList`, { method: 'POST', headers: { 'Content-type' : 'application/json' }});
       const body = await request.json();
+
+      let newElements = elements;
+      newElements.push({ type: flag, items: [{ content: '' }], _id: Id });
       Id = await body._id;
-      setNoteSelected([...Elements, { type: flag, items: [{content: ''}], _id: Id }]);
-    }else {
-      setNoteSelected([...Elements, { type: flag, text: '', _id: Id }]);
+
+      setNoteSelected(prevState => ({ ...prevState, elements: newElements }));
+    } else {
+      let newElements = elements;
+      newElements.push({ type: flag, text: '', _id: Id });
+      
+      setNoteSelected(prevState => ({ ...prevState, elements: newElements }));
     }
   }
 
-  console.log(Elements);
   return (
   <div className='noteContent'>
-    <p contentEditable> {Title} </p>
-    {Elements.length ? Elements.map(element => (
+    <p contentEditable> {title} </p>
+    {elements ? elements.map(element => (
       <>
         <Paragraph 
-        key={element._id}
-        text={element.content}
-        type={element.type}
-        noteId={noteId}
-        element_id={element._id}
-        elements={element}/>
+          key={element._id}
+          text={element.content}
+          type={element.type}
+          noteId={noteId}
+          element_id={element._id}
+          elements={element}/> 
         <br/> 
       </>
-    )) : <p>Loading</p>
+    )) : <p>No elements</p>
     }
     <div>
       <button className='paragraphButton' onClick={newParagraph} data='paragraph'> New Paragraph </button>
@@ -172,7 +188,7 @@ function Paragraph({ type, text, noteId, elements, element_id }) {
       })
       await request.json();
     }
-  }, [paragraph]);
+  }, [element_id, noteId, paragraph]);
 
   React.useEffect(() => {
     const typingTimer = setTimeout(handleStopTyping, 1000);
@@ -186,7 +202,7 @@ function Paragraph({ type, text, noteId, elements, element_id }) {
     setParagraph(newParagraph);
   };
 
-  return(
+  return (
     <div className='paragraphStyle'>
       {showImageInput ? (
         image ? (
