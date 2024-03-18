@@ -13,15 +13,15 @@ connectDB();
  *
  */
 router.post('/create', async (req, res) => {
-    try{
+    try {
         const { title } = req.body;
-        if(!title) {
+        if (!title) {
             res.status(400).json({ error: "No title found" });
         }
         const newNote = new Note({ title });
         await newNote.save();
         res.status(201).json({ message: 'Note inserted successfully!', id: newNote.id });
-    }catch(err){
+    } catch (err) {
         res.status(500).send({ message: err });
     }
 });
@@ -34,17 +34,17 @@ router.post('/create', async (req, res) => {
  */
 router.post('/:id/addImage', async (req, res) => {
     const noteId = req.params.id;
-    if(!noteId) {
+    if (!noteId) {
         res.status(400).send({ message: 'No note selected' })
     }
     const note = await Note.findById(noteId);
     const { image } = req.files;
-    if(!image) {
+    if (!image) {
         res.status(400).send({ message: 'No image attached!' })
     }
 
     const myHeaders = new Headers();
-    myHeaders.append("Authorization", "Client-ID "+process.env.CLIENT_ID);
+    myHeaders.append("Authorization", "Client-ID " + process.env.CLIENT_ID);
 
     const blob = new Blob([image.data]);
     const formdata = new FormData();
@@ -77,11 +77,11 @@ router.post('/:id/addImage', async (req, res) => {
  */
 router.post('/:id/addParagraph', async (req, res) => {
     const noteId = req.params.id;
-    if(!noteId) {
+    if (!noteId) {
         res.status(400).send({ message: 'No note selected' });
-    }else {
+    } else {
         const note = await Note.findById(noteId);
-        note.paragraphs.push({content: ''});
+        note.paragraphs.push({ content: '' });
         await note.save();
         const lastParagraph = note.paragraphs.reduce((elementGreaterTimestamp, actualElement) => {
             if (actualElement.creation_time > elementGreaterTimestamp.creation_time) {
@@ -90,7 +90,7 @@ router.post('/:id/addParagraph', async (req, res) => {
                 return elementGreaterTimestamp;
             }
         });
-        res.status(200).send({ message: 'Paragraph inserted correctly', id: lastParagraph.id});
+        res.status(200).send({ message: 'Paragraph inserted correctly', id: lastParagraph.id });
     }
 });
 
@@ -101,13 +101,13 @@ router.post('/:id/addParagraph', async (req, res) => {
 */
 router.post('/:id/addList', async (req, res) => {
     const noteId = req.params.id;
-    if(!noteId) {
+    if (!noteId) {
         res.status(400).send({ message: 'No note selected' });
-    }else {
+    } else {
         const note = await Note.findById(noteId);
         note.lists.push({});
         await note.save();
-        res.status(200).send({ message: 'List inserted successfully', id: note.lists[note.lists.length - 1].id});
+        res.status(200).send({ message: 'List inserted successfully', id: note.lists[note.lists.length - 1].id });
     }
 });
 
@@ -119,15 +119,15 @@ router.post('/:id/addList', async (req, res) => {
 router.post('/:id/:list_id/addListElement', async (req, res) => {
     const noteId = req.params.id;
     const listId = req.params.list_id;
-    if(!noteId) {
+    if (!noteId) {
         res.status(400).send({ message: 'No note selected' });
     }
-    if(!req.body.element) {
+    if (!req.body.element) {
         res.status(400).send({ message: 'No element sent!' });
     }
     const { element } = req.body;
     const note = await Note.findById(noteId);
-    note.lists.find((list) => list.id === listId).items.push({content: element});
+    note.lists.find((list) => list.id === listId).items.push({ content: element });
     await note.save();
     res.status(200).send({ message: 'Element inserted successfully to the list' });
 });
@@ -141,17 +141,17 @@ router.post('/:id/:element_id/editParagraph', async (req, res) => {
     const noteId = req.params.id;
     const element_id = req.params.element_id;
     const { paragraph } = req.body;
-    if(!noteId || !element_id) {
+    if (!noteId || !element_id) {
         res.status(400).send({ message: 'No note or paragraph selected' });
-    }else {
+    } else {
         const note = await Note.findById(noteId);
         note.paragraphs.map(element => {
-            if(element.id === element_id){
+            if (element.id === element_id) {
                 element.content = paragraph;
             }
         });
         note.save();
-        res.status(200).send({message: 'Paragraph updated correctly'});
+        res.status(200).send({ message: 'Paragraph updated correctly' });
     }
 });
 
@@ -163,7 +163,7 @@ router.post('/:id/:element_id/editParagraph', async (req, res) => {
  *
  */
 router.delete('/:id/delete', async (req, res) => {
-     try {
+    try {
         const Id = req.params.id;
         if (!Id) {
             return res.status(400).json({ message: 'No note ID provided' });
@@ -185,8 +185,16 @@ router.delete('/:id/delete', async (req, res) => {
     TODO Cristian.
  *
  */
-router.get('/getAll', (req, res) => {
-
+router.get('/getAll', async (req, res) => {
+    try {
+        const allNotes = await Note.find({}, '_id title');
+        if (!allNotes || allNotes.length === 0) {
+            return res.status(404).json({ message: 'No notes found' });
+        }
+        res.status(200).json({ message: 'Notes found successfully', notes: allNotes });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 /*  
@@ -195,8 +203,33 @@ router.get('/getAll', (req, res) => {
     TODO Cristian.
  *
  */
-router.get('/:id/getNote', (req, res) => {
 
+router.get('/:id/getNote', async (req, res) => {
+    try {
+        const { title } = req.params.title;
+        if (!title) {
+            return res.status(400).json({ message: 'No note Title provided' });
+        }
+        const note = await Note.findOne({ title });
+        if (!note) {
+            return res.status(404).json({ message: 'Note not found' });
+        }
+
+        const allElements = [
+            ...note.paragraphs.map(paragraph => ({ ...paragraph._doc, elementType: 'paragraph' })),
+            ...note.images.map(image => ({ ...image._doc, elementType: 'image' })),
+            ...note.lists.map(list => ({ ...list._doc, elementType: 'list' }))
+        ];
+
+        const sortedElements = allElements.sort((a, b) => b.creation_time - a.creation_time);
+
+        const elementIds = sortedElements.map(element => element._id);
+
+        res.status(200).json({ message: 'Note elements found successfully', elements: sortedElements, elementIds });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
+
 
 export { router };
