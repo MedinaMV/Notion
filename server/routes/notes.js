@@ -20,7 +20,7 @@ router.post('/create', async (req, res) => {
         }
         const newNote = new Note({ title });
         await newNote.save();
-        res.status(201).json({ message: 'Note inserted successfully!', id: newNote.id });
+        res.status(201).json({ message: 'Note inserted successfully!', _id: newNote.id });
     }catch(err){
         res.status(500).send({ message: err });
     }
@@ -90,7 +90,7 @@ router.post('/:id/addParagraph', async (req, res) => {
                 return elementGreaterTimestamp;
             }
         });
-        res.status(200).send({ message: 'Paragraph inserted correctly', id: lastParagraph.id});
+        res.status(200).send({ message: 'Paragraph inserted correctly', _id: lastParagraph.id});
     }
 });
 
@@ -107,7 +107,7 @@ router.post('/:id/addList', async (req, res) => {
         const note = await Note.findById(noteId);
         note.lists.push({});
         await note.save();
-        res.status(200).send({ message: 'List inserted successfully', id: note.lists[note.lists.length - 1].id});
+        res.status(200).send({ message: 'List inserted successfully', _id: note.lists[note.lists.length - 1].id});
     }
 });
 
@@ -185,9 +185,17 @@ router.delete('/:id/delete', async (req, res) => {
     TODO Cristian.
  *
  */
-router.get('/getAll', (req, res) => {
-
-});
+    router.get('/getAll', async (req, res) => {
+        try {
+            const allNotes = await Note.find({}, '_id title');
+            if (!allNotes || allNotes.length === 0) {
+                return res.status(404).json({ message: 'No notes found' });
+            }
+            res.status(200).json({ notes: allNotes });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
 
 /*  
  *
@@ -195,8 +203,26 @@ router.get('/getAll', (req, res) => {
     TODO Cristian.
  *
  */
-router.get('/:id/getNote', (req, res) => {
-
-});
+    router.get('/:id/getNote', async (req, res) => {
+        try {
+            const noteId = req.params.id;
+            const note = await Note.findById(noteId);
+            if (!note) {
+                return res.status(404).json({ message: 'Note not found' });
+            }
+    
+            const allElements = [
+                ...note.paragraphs.map(paragraph => ({ ...paragraph._doc })),
+                ...note.images.map(image => ({ ...image._doc })),
+                ...note.lists.map(list => ({ ...list._doc }))
+            ];
+    
+            const sortedElements = allElements.sort((a, b) => b.creation_time - a.creation_time).reverse();
+    
+            res.status(200).json({ elements: sortedElements });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
 
 export { router };

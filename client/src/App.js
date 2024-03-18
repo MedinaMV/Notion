@@ -2,48 +2,34 @@ import React from 'react';
 import './App.css';
 
 export default function App() {
-
   const [noteSelected, setNoteSelected] = React.useState(null);
 
-  function renderNote (title, paragraphs) {
-    setNoteSelected(<div className="note"><Note Title={/*title*/"Tortilla de Patatas"} Elements={/*paragraphs*/PARAGRAPHS} /></div>);
-  }
-
-  /*const noterows = async () => {
-    await fetch('/notes/getAll').json();
-  } */
-
-  const NOTEROWS = [
-    { title: 'Tortilla de Patatas', id: 1 },
-    { title: 'Lomo con Pimientos', id: 2 },
-    { title: 'Pulpo a la Gallega', id: 3 },
-    { title: 'Cocido Madrileño', id: 4 }
-  ];
-
-  const PARAGRAPHS = [
-    { type: 'paragraph', text: 'Patatas 700 g', id: 1 },
-    { type: 'paragraph', text: 'Cebolla 300 g', id: 2 },
-    { type: 'paragraph', text: 'Huevos 6 ', id: 3 },
-    { type: 'paragraph', text: 'Sal', id: 4 },
-    { type: 'image', text: 'https://i.imgur.com/yXOvdOSs.jpg', id: 5 },
-    { type: 'list', text: ['Elemento de ejemplo 1', 'Elemento de ejemplo2', 'Elemento de ejemplo 3'], id: 6 }
-  ];
-
+  console.log(noteSelected);
   return (
     <div className="app">
-      <LateralMenu noterows={NOTEROWS} renderNote={renderNote}/>
+      <LateralMenu setNoteSelected={setNoteSelected}/>
       <div className="note">
-        {noteSelected}
+        {noteSelected && (
+          <Note Title={noteSelected.title} Elements={noteSelected.paragraphs} noteId={noteSelected.noteId} setNoteSelected={setNoteSelected}/>
+        )}
       </div>
     </div>
   );
 }
 
-function LateralMenu({ noterows, renderNote }) {
-  const [rows, setRows] = React.useState(noterows);
+function LateralMenu({ setNoteSelected }) {
+  const [rows, setRows] = React.useState([]);
+
+  React.useEffect(() => {
+    (async () => {
+      const request = await fetch('/notes/getAll');
+      const response = await request.json();
+      setRows(response.notes)
+    })(); 
+  }, []);  
   
   async function handleClick() {
-    var input = prompt('Set a title for your new Note');
+    let input = prompt('Set a title for your new Note');
     
     fetch('/notes/create' , {
       method: 'POST',
@@ -51,7 +37,7 @@ function LateralMenu({ noterows, renderNote }) {
       body: JSON.stringify({title: input}) 
     }).then(response => response.json())
       .then(data => {
-        var newRow = {title: input, id: data.id};
+        const newRow = {title: input, _id: data._id};
         manageNoteRows(newRow);
       })
   }
@@ -68,9 +54,9 @@ function LateralMenu({ noterows, renderNote }) {
       {rows.map(row => (
         <NoteRow 
         noteRow={row}
-        key={row.id}
+        key={row._id}
         manageNoteRows={manageNoteRows}
-        renderNote={renderNote}
+        setNoteSelected={setNoteSelected}
         />
       ))}
       <div className="noteButtonContainer">
@@ -80,17 +66,20 @@ function LateralMenu({ noterows, renderNote }) {
   );
 }
 
-function NoteRow({ noteRow, manageNoteRows, renderNote}) {
+function NoteRow({ noteRow, manageNoteRows, setNoteSelected }) {
 
   async function handleClick() {
-    console.log(noteRow.id);
-    //const data = (await fetch(`/notes/${noteRow.id}/getNote`)).json();
-    renderNote(/*noteRow.title,data*/);
+    const urlSearchParams = new URLSearchParams();
+    urlSearchParams.append('id', noteRow._id);
+    window.history.pushState(null, '', `?${urlSearchParams.toString()}`);
+    const request = await fetch(`/notes/${noteRow._id}/getNote`);
+    const response = await request.json();
+    setNoteSelected({title: noteRow.title, paragraphs: response.elements, noteId: noteRow._id});
   }
 
   function deleteNote() {
     if(window.confirm('Are you sure about deleting this note?')){
-      fetch(`/notes/${noteRow.id}/delete`, {
+      fetch(`/notes/${noteRow._id}/delete`, {
         method: 'DELETE',
         headers: { 'Content-type': 'application/json' }
       }).then(response => response.json())
@@ -108,35 +97,43 @@ function NoteRow({ noteRow, manageNoteRows, renderNote}) {
   );
 }
 
-function Note({Title, Elements, noteId}) {
-  const [elements, setParagraphs] = React.useState(Elements);
-
-  function newParagraph(event){
+function Note({Title, Elements, noteId, setNoteSelected}) {
+ 
+  async function newParagraph(event){
     const flag = event.target.getAttribute('data');
+    let Id = '-1';
     if (flag === 'paragraph'){
-      fetch(`/note/${noteId}/addParagraph`, {
-        method: 'POST',
-        headers: { 'Content-type' : 'application/json' } 
-      }).then(response => response.json())
-        .then(data => console.log(data));
+      const request = await fetch(`/notes/${noteId}/addParagraph`, { method: 'POST', headers: { 'Content-type' : 'application/json' }});
+      const body = await request.json();
+      Id = body._id;
+      setNoteSelected([...Elements, { type: flag, content: '', _id: Id }]);
+    }else if(flag === 'list') {
+      const request = await fetch(`/notes/${noteId}/addList`, { method: 'POST', headers: { 'Content-type' : 'application/json' }});
+      const body = await request.json();
+      Id = await body._id;
+      setNoteSelected([...Elements, { type: flag, items: [{content: ''}], _id: Id }]);
+    }else {
+      setNoteSelected([...Elements, { type: flag, text: '', _id: Id }]);
     }
-    setParagraphs([...elements, { type: flag, text: '', id: 99 }]);
   }
 
+  console.log(Elements);
   return (
   <div className='noteContent'>
     <p contentEditable> {Title} </p>
-    {elements.map(element => (
+    {Elements.length ? Elements.map(element => (
       <>
         <Paragraph 
-        key={element.id}
-        text={element.text}
+        key={element._id}
+        text={element.content}
         type={element.type}
         noteId={noteId}
-        elements={Elements}/>
+        element_id={element._id}
+        elements={element}/>
         <br/> 
       </>
-    ))}
+    )) : <p>Loading</p>
+    }
     <div>
       <button className='paragraphButton' onClick={newParagraph} data='paragraph'> New Paragraph </button>
       <button className='paragraphButton' onClick={newParagraph} data='image'> New Image </button>
@@ -146,23 +143,47 @@ function Note({Title, Elements, noteId}) {
   );
 }
 
-function Paragraph({type, text, noteId, elements}) {
+function Paragraph({ type, text, noteId, elements, element_id }) {
   const [image, setImage] = React.useState(text);
   const showImageInput = (type === 'image' ? true : false);
   const isListElement = (type === 'list' ? true : false);
+  const [paragraph, setParagraph] = React.useState('');
 
   const handleImageChange = async (event) => {
     const formData = new FormData();
     const file = event.target.files[0];
     formData.append('image', file);
     if (file) {
-      const request = await fetch(`/notes/65f5d28bb169d2c233bddecd/addImage`, {
+      const request = await fetch(`/notes/${noteId}/addImage`, {
         method: 'POST',
         body: formData
       });
       const response = await request.json();
       setImage(response.url);
     }
+  };
+
+  const handleStopTyping = React.useCallback(async () => { 
+    if(paragraph !== ''){
+      const request = await fetch(`/notes/${noteId}/${element_id}/editParagraph`, {
+        method: 'POST',
+        headers: {'Content-type': 'application/json'},
+        body: JSON.stringify({paragraph: paragraph}) 
+      })
+      await request.json();
+    }
+  }, [paragraph]);
+
+  React.useEffect(() => {
+    const typingTimer = setTimeout(handleStopTyping, 1000);
+    return () => {
+      clearTimeout(typingTimer);
+    };
+  }, [paragraph, handleStopTyping]);
+
+  const handleChange = (event) => {
+    const newParagraph = event.target.value;
+    setParagraph(newParagraph);
   };
 
   return(
@@ -175,23 +196,24 @@ function Paragraph({type, text, noteId, elements}) {
         )
       ) : (
         isListElement ? (
-          <ListElement elements={elements} noteId={noteId}/>
+          <ListElement elements={elements} noteId={noteId} listId={element_id}/>
         ) : (
-          <textarea placeholder='Your text goes here'>{text}</textarea>
+          <textarea onChange={handleChange} placeholder='Your text goes here'>{text}</textarea>
         )
       )}
     </div>
   );
 }
 
-function ListElement({elements, noteId}) {
+function ListElement({elements, noteId, listId}) {
 
-  const items = elements.find(element => element.type === 'list');
-
+  var items = elements.items;
   let listItems = [];
-  items.text.forEach(item => {
-    listItems.push(<li>{item}</li>);
-  });
+  for (var i = 0; i < items.length; i++) {
+    if(items[i].content !== 'null'){
+      listItems.push(<li>{items[i].content}</li>)
+    }
+  }
 
   const [list, setList] = React.useState(listItems);
   const [item, setItem] = React.useState(null);
@@ -199,12 +221,11 @@ function ListElement({elements, noteId}) {
   const addElement = async () => {
     const formData = new FormData();
     formData.append('element', item);
-    //const request = await fetch(`/notes/${noteId}/${listId}/addListElement`);
-    const request = await fetch(`/notes/65f5d28bb169d2c233bddecd/65f6eddd16f3dfdd3679c084/addListElement`, {
+    const request = await fetch(`/notes/${noteId}/${listId}/addListElement`, {
       method: 'POST', body: formData
     });
     const response = await request.json();
-    setList([...list, <li key={response.id}>{item}</li>]);
+    setList([...list, <li key={response._id}>{item}</li>]);
   }
 
   return(
