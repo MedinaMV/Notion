@@ -135,6 +135,52 @@ code {
   cursor: pointer;
 }
 
+/*
+
+*/
+
+.container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.input-container {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+input[type='text'] {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-button {
+  background-color: #4CAF50; /* Verde */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.add-button:hover {
+  background-color: #45a049; /* Cambio de color al pasar el ratón */
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 5px;
+}
+
+
+
 /* End CSS related with the Paragraph component */
 
 

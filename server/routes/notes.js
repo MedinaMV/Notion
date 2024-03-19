@@ -38,35 +38,47 @@ router.post('/:id/addImage', async (req, res) => {
         res.status(400).send({ message: 'No note selected' })
     }
     const note = await Note.findById(noteId);
-    const { image } = req.files;
-    if(!image) {
-        res.status(400).send({ message: 'No image attached!' })
-    }
 
-    const myHeaders = new Headers();
-    myHeaders.append("Authorization", "Client-ID "+process.env.CLIENT_ID);
-
-    const blob = new Blob([image.data]);
-    const formdata = new FormData();
-    formdata.append("image", blob, image.name);
-    formdata.append("title", "Simple upload");
-    formdata.append("description", "This is a simple image upload in Imgur");
-
-    const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: formdata,
-        redirect: 'follow'
-    };
-
-    const request = await fetch("https://api.imgur.com/3/image", requestOptions);
-    const response = await request.json();
-
-    console.log(response.data.link);
-    note.images.push({ content: response.data.link });
+    note.images.push({});
     note.save();
 
-    res.status(200).send({ ok: true, url: response.data.link });
+    res.status(200).send({ ok: true, _id: note.images[note.images.length - 1]._id });
+});
+
+router.post('/:id/:image_id/updateImage', async (req, res) => {
+    const noteId = req.params.id;
+    if(!noteId) {
+        res.status(400).send({ message: 'No note selected' });
+    }else {
+        const note = await Note.findById(noteId);
+        const { image } = req.files;
+        const imageId = req.params.image_id;
+        if(!image || !imageId) {
+            res.status(400).send({ message: 'No image attached!' })
+        }
+
+        var formdata = new FormData();
+        const blob = new Blob([image.data]);
+        formdata.append("image", blob, image.name);
+
+        var requestOptions = {
+            method: 'POST',
+            body: formdata,
+            redirect: 'follow'
+        };
+
+        const request = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.BB_KEY}`, requestOptions);
+        const response = await request.json();
+
+        note.images.map(element => {
+            if(element.id === imageId){
+                element.content = response.data.image.url;
+            }
+        })
+        note.save();
+
+        res.status(200).send({ ok: true, url: response.data.image.url });
+    }
 });
 
 /*  

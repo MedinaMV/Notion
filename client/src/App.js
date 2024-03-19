@@ -4,7 +4,6 @@ import './App.css';
 export default function App() {
   const [noteSelected, setNoteSelected] = React.useState(null);
 
-
   return (
     <div className="app">
       <LateralMenu setNoteSelected={setNoteSelected} />
@@ -34,20 +33,21 @@ function LateralMenu({ setNoteSelected }) {
   
   async function handleClick() {
     let input = prompt('Set a title for your new Note');
-    
-    fetch('/notes/create' , {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({title: input}) 
-    }).then(response => response.json())
-      .then(data => {
-        const newRow = {title: input, _id: data._id};
-        manageNoteRows(newRow);
-      })
+    if(input) {
+      fetch('/notes/create' , {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({title: input}) 
+      }).then(response => response.json())
+        .then(data => {
+          const newRow = {title: input, _id: data._id};
+          manageNoteRows(newRow, false);
+        })
+    }
   }
 
-  function manageNoteRows(newRow){
-    newRow ? setRows([...rows, newRow ]) : setRows(rows.slice(0, -1));
+  function manageNoteRows(newRow, flag){
+    flag ? rows.splice(rows.indexOf(newRow),1): setRows([...rows, newRow ]);
   }
 
   return (
@@ -90,8 +90,9 @@ function NoteRow({ noteRow, manageNoteRows, setNoteSelected }) {
         headers: { 'Content-type': 'application/json' }
       }).then(response => response.json())
         .then(data => console.log(data))
+      manageNoteRows(noteRow, true);
+      window.location.reload();
     }
-    manageNoteRows(null);
   }
 
   return (
@@ -107,7 +108,7 @@ function Note({ title, elements, noteId, setNoteSelected }) {
 
   async function newParagraph(event){
     const flag = event.target.getAttribute('data');
-    let Id = '-1';
+    let Id = '';
     if (flag === 'paragraph') {
       const request = await fetch(`/notes/${noteId}/addParagraph`, { method: 'POST', headers: { 'Content-type' : 'application/json' }});
       const body = await request.json();
@@ -122,13 +123,16 @@ function Note({ title, elements, noteId, setNoteSelected }) {
       const body = await request.json();
 
       let newElements = elements;
+      Id = body._id;
       newElements.push({ type: flag, items: [{ content: '' }], _id: Id });
-      Id = await body._id;
 
       setNoteSelected(prevState => ({ ...prevState, elements: newElements }));
     } else {
+      const request = await fetch(`/notes/${noteId}/addImage`, { method: 'POST', headers: { 'Content-type' : 'application/json' }});
+      const body = await request.json();
+      Id = body._id;
       let newElements = elements;
-      newElements.push({ type: flag, text: '', _id: Id });
+      newElements.push({ type: flag, content: '', _id: Id });
       
       setNoteSelected(prevState => ({ ...prevState, elements: newElements }));
     }
@@ -170,7 +174,7 @@ function Paragraph({ type, text, noteId, elements, element_id }) {
     const file = event.target.files[0];
     formData.append('image', file);
     if (file) {
-      const request = await fetch(`/notes/${noteId}/addImage`, {
+      const request = await fetch(`/notes/${noteId}/${element_id}/updateImage`, {
         method: 'POST',
         body: formData
       });
@@ -244,13 +248,22 @@ function ListElement({elements, noteId, listId}) {
     setList([...list, <li key={response._id}>{item}</li>]);
   }
 
-  return(
-    <div>
-      <div>
-        <input type='text' onChange={(e) => setItem(e.target.value)} placeholder='Add your task'></input>
-        <button onClick={addElement}> Add </button>
+  return (
+    <div className="container">
+      <div className="input-container">
+        <input
+          type='text'
+          value={item}
+          onChange={(e) => setItem(e.target.value)}
+          placeholder='Add a element'
+        />
+        <button onClick={addElement} className="add-button">Add</button>
       </div>
-      <ul>{ list }</ul>
+      <ul>
+        {list.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
+      </ul>
     </div>
   );
 }
