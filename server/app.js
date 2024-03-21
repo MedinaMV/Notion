@@ -11,6 +11,7 @@ app.use(cors({
     origin: true,
 }));
 
+app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload());
 app.use(express.json());
 app.use('/notes', notesRouter)
