@@ -1,24 +1,19 @@
-import React from 'react';
 import './App.css';
-import LateralMenu from './components/LateralMenu';
-import Note from './components/Note';
+import { Routes, Route } from 'react-router-dom';
+import MainPage from './components/MainPage';
+import Login from './components/Login';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
+import NavBar from './components/NavBar';
 
 export default function App() {
-  const [noteSelected, setNoteSelected] = React.useState(null);
-
   return (
-    <div className="app">
-      <LateralMenu setNoteSelected={setNoteSelected} />
-      <div className="note">
-        {noteSelected && (
-          <Note 
-            title={noteSelected.title}
-            elements={noteSelected.paragraphs}
-            noteId={noteSelected.noteId} 
-            setNoteSelected={setNoteSelected}
-          />
-        )}
-      </div>
-    </div>
+    <>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<MainPage />}></Route>
+        <Route path='/login' element={<Login />} />
+      </Routes>
+    </>
   );
 }

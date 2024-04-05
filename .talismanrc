@@ -1,16 +1,6 @@
 fileignoreconfig:
-- filename: server/package-lock.json
-  checksum: ac72ddb717ccc6dccbd36aedbee56a0ae10407ee3da2a4a4a1eb9695dfd6f1e3
-- filename: server/package.json
-  checksum: e7918c51dfd68a524aad3ca1b4a64bd48381c05d273382d847f67d0541bf81ad
-- filename: server/src/models/User.js
-  checksum: 44865b57547f210327bc3b6418422e03e6218a2c8b7f671ab3a63fb8a72ae264
-- filename: client/src/components/LateralMenu.js
-  checksum: 29502f0d1015c2409045d96f0741a93729545cba3c55fe59e286971062b235ae
-- filename: server/src/controllers/user.controller.js
-  checksum: abaf3823289cf69dcb3a1bec9a2083c58bebd96f7d5eba348143393071dba086
-- filename: client/src/components/ListElement.js
-  checksum: 41001ae069a0cac1321dd4290d859fddaabef8ad721deb890fd5f76b5d1a101a
-- filename: client/src/components/Note.js
-  checksum: a0551c942d00d793370790c80d738937c7d6bf0f97c672da2fa651981d084c72
+- filename: client/package-lock.json
+  checksum: 3291b00eef5b37cd4c63164cb6e2b913497e79c474e027b0574171512400e6af
+- filename: client/src/components/Login.js
+  checksum: a1c4db09b265ef7ae9942374310b077548ab4cf86c460eaa183631b693b30f6c
 version: ""

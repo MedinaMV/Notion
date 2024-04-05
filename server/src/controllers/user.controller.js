@@ -10,7 +10,7 @@ userController.register = async (req, res) => {
     if(existingUser){
         res.status(400).send({message: 'User already exists'});
     }else {
-        const newUser = new User(user,email,password);
+        const newUser = new User({user,email,password});
         newUser.password = await newUser.encryptPassword(password);
         await newUser.save();
         res.status(200).send({message: 'User register successfully'});
