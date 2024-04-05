@@ -4,8 +4,8 @@ const router = Router();
 
 router.post('/register', userController.register);
 
-router.post('/logIn', userController.logIn);
+router.put('/logIn', userController.logIn);
 
-router.post('/logOut', userController.logOut);
+router.get('/logOut', userController.logOut);
 
 export {router};

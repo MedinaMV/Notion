@@ -1,112 +1,46 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
+import React from 'react';
+import { Paper, Grid, Avatar, Button, Typography, Link } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import TextField from '@mui/material/TextField';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+export default function Login({setLoggedIn}) {
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
 
-// TODO remove, this demo shouldn't need to reset the theme.
+    async function login() {
+        const request = await fetch('/user/logIn', {
+            method: 'PUT',
+            headers: {'Content-type' : 'application/json'},
+            body: JSON.stringify({email,password})
+        });
+        const response = await request.json();
+        console.log(response);
+    }
 
-const defaultTheme = createTheme();
+    const handleEmail = (event) => {
+        setEmail(event.target.value);
+    }
 
-export default function Login() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
+    const handlePassword = (event) => {
+        setPassword(event.target.value);
+    }
 
-  return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
-      </Container>
-    </ThemeProvider>
-  );
-}
+    return (
+        <Grid>
+            <Paper elevation={10} style={{padding: 20, height: '40vh', width: 500, margin: "40px auto"}}>
+                <Grid align = 'center'>
+                    <Avatar style={{backgroundColor: '#008fe6'}}><LockOutlinedIcon></LockOutlinedIcon></Avatar>
+                    <h2>Log In</h2>
+                </Grid>
+                <Grid style={{marginTop: '40px'}} align = 'center' >
+                    <TextField onChange={handleEmail} style={{margin: "10px auto"}} id="outlined-basic" label="Email" variant="outlined" type='email' fullWidth required/>
+                    <TextField onChange={handlePassword} style={{margin: "20px auto"}} id="outlined-basic" label="Password" variant="outlined" type='password' fullWidth/>
+                    <Button onClick={login} style={{backgroundColor: '#008fe6', margin: "10px auto"}} variant="contained" type='submit' fullWidth>Log In</Button>
+                    <Typography>
+                        Do you have an account?<Link href='/register'>Register</Link>
+                    </Typography>
+                </Grid>
+            </Paper>
+        </Grid>
+    );
+}; 
