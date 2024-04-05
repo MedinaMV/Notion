@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const noteSchema = new mongoose.Schema({
+const NoteSchema = new mongoose.Schema({
     title: { type: String, required: true },
     paragraphs: [{
         type: { type: String, default: 'paragraph' },
@@ -19,4 +19,4 @@ const noteSchema = new mongoose.Schema({
     }]
 });
 
-export default mongoose.model('Notes', noteSchema);
+export default mongoose.model('Notes', NoteSchema);
