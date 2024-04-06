@@ -18,12 +18,21 @@ userController.register = async (req, res) => {
     }
 };
 
-userController.logIn = (req, res) => {
-
-};
-
-userController.logOut = (req, res) => {
-
+userController.logIn = async (req, res) => {
+    const { email, password } = req.body;
+    let message = false;
+    const user = await User.findOne({email});
+    if(user) {
+        const match = await user.matchPassword(password);
+        if(match) {
+            message = true;
+        }
+    }
+    if(message) {
+        res.status(200).send({ ok: true, user: user.id});
+    }else {
+        res.status(400).send({ok: false, message: 'Incorrect combination of Email or Password.'});
+    }
 };
 
 export default userController;

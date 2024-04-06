@@ -5,7 +5,8 @@ export default function LateralMenu({ setNoteSelected }) {
     const [rows, setRows] = React.useState([]);
     React.useEffect(() => {
       (async () => {
-        const request = await fetch('/notes/getAllNotes');
+        const userId = window.sessionStorage.getItem('user');
+        const request = await fetch(`/notes/getAllNotes/${userId}`);
         const response = await request.json();
         setRows(response.notes ?? [])
       })(); 
@@ -14,7 +15,8 @@ export default function LateralMenu({ setNoteSelected }) {
     async function handleClick() {
       let input = prompt('Set a title for your new Note');
       if(input) {
-        fetch('/notes/createNote' , {
+        const userId = window.sessionStorage.getItem('user');
+        fetch(`/notes/createNote/${userId}` , {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({title: input}) 

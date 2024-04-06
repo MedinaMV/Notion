@@ -16,7 +16,8 @@ const NoteSchema = new mongoose.Schema({
         type: { type: String, default: 'list' },
         items: [{ content: { type: String } }],
         creation_time: { type: Date, default: Date.now }
-    }]
+    }],
+    user: { type: String, required: true }
 });
 
 export default mongoose.model('Notes', NoteSchema);

@@ -5,7 +5,6 @@ import '../App.css';
 
 export default function MainPage() {
     const [noteSelected, setNoteSelected] = React.useState(null);
-
     return (
         <div className="app">
         <LateralMenu setNoteSelected={setNoteSelected} />

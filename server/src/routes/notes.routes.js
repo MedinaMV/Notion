@@ -3,11 +3,11 @@ import noteController from "../controllers/notes.controller.js"
 
 const router = Router();
 
-router.post('/createNote', noteController.createNote);
+router.post('/createNote/:user', noteController.createNote);
 
 router.delete('/:id/deleteNote', noteController.deleteNote);
 
-router.get('/getAllNotes', noteController.getAllNotes);
+router.get('/getAllNotes/:user', noteController.getAllNotes);
 
 router.get('/:id/getNote', noteController.getNote);
 

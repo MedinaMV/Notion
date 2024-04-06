@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 import { Paper, Grid, Avatar, Button, Typography, Link, Alert, AlertTitle } from '@mui/material';
 import AppRegistrationOutlinedIcon from '@mui/icons-material/AppRegistrationOutlined';
 import TextField from '@mui/material/TextField';
@@ -9,6 +10,7 @@ export default function Register() {
     const [password, setPassword] = React.useState('');
     const [confirm_password, setConfirmPassword] = React.useState('');
     const [error, setError] = React.useState(null);
+    const navigate = useNavigate();
 
     async function register() {
         setError(null);
@@ -19,7 +21,7 @@ export default function Register() {
         })
         const response = await request.json();
         if (response.ok) {
-            window.location.replace('/login');
+            navigate('/login');
         } else {
             setError(response.message);
         }

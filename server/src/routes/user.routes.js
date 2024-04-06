@@ -6,6 +6,4 @@ router.post('/register', userController.register);
 
 router.put('/logIn', userController.logIn);
 
-router.get('/logOut', userController.logOut);
-
 export {router};
