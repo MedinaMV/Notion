@@ -45,7 +45,7 @@ export default function Register() {
 
     return (
         <Grid>
-            <Paper elevation={10} style={{ padding: 20, height: '50vh', width: 500, margin: "40px auto" }}>
+            <Paper elevation={10} style={{ padding: 20, height: '62vh', width: 500, margin: "40px auto" }}>
                 <Grid align='center'>
                     <Avatar style={{ backgroundColor: '#008fe6' }}><AppRegistrationOutlinedIcon></AppRegistrationOutlinedIcon></Avatar>
                     <h2>Register</h2>

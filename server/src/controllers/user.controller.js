@@ -3,6 +3,12 @@ const userController = {};
 
 userController.register = async (req, res) => {
     const { user, email, password, confirm_password } = req.body;
+
+    if(!user || !email || !password || !confirm_password){
+        res.status(400).send({ok: false, message: 'All fields are required'});
+        return;
+    }
+
     if (password != confirm_password) {
         res.status(400).send({ ok: false, message: 'Passwords does not match' });
     } else {

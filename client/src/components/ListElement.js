@@ -21,6 +21,7 @@ export default function ListElement({elements, noteId, listId}) {
       });
       const response = await request.json();
       setList([...list, <li key={response._id}>{item}</li>]);
+      setItem('');
     }
   
     return (
