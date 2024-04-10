@@ -36,30 +36,58 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
     }
   }
 
+  const onDragEnd = async (result) => {
+    if (!result.destination) return;
+
+    /*console.log(elements[result.destination.index]);
+    console.log(elements[result.source.index]);
+    console.log(result);*/
+
+    const items = Array.from(elements);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    elements = items;
+
+    const request = await fetch(`/notes/${noteId}/moveNoteElements`, {
+      method: 'POST',
+      headers: { 'Content-type': 'application/json' },
+      body: JSON.stringify({
+        sourceId: elements[result.source.index]._id, 
+        sourceType: elements[result.source.index].type, 
+        destinationId: elements[result.destination.index]._id,
+        destinationType: elements[result.destination.index].type
+      })
+    });
+
+    await request.json();
+    //console.log(response);
+
+  };
+
   return (
     <div className='noteContent'>
       <p contentEditable> {title} </p>
-      <DragDropContext>
-        <Droppable droppableId="nice">
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId='Elements'>
           {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef}>
-              {elements ? elements.map((element, index) => {
-                return (
-                  <Draggable draggableId={element._id} index={index}>
-                    {(provided) => (
-                      <div {...provided.droppableProps} {...provided.dragHandleProps} ref={provided.innerRef} >
-                        <Paragraph
-                          key={element._id}
-                          text={element.content}
-                          type={element.type}
-                          noteId={noteId}
-                          element_id={element._id}
-                          elements={element} />
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {elements ? elements.map((task, index) => (
+                <Draggable key={task._id} draggableId={task._id.toString()} index={index}>
+                  {(provided) => (
+                    <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+                      <Paragraph
+                        key={task._id}
+                        text={task.content}
+                        type={task.type}
+                        noteId={noteId}
+                        element_id={task._id}
+                        elements={task} />
                         <br />
-                      </div>
-                    )}
-                  </Draggable>)
-              }) : <p>No elements</p>}
+                    </div>
+                  )}
+                </Draggable>
+              )) : <p>No elements</p>}
+              {provided.placeholder}
             </div>
           )}
         </Droppable>

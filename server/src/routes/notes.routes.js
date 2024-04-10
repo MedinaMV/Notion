@@ -23,4 +23,6 @@ router.post('/:id/addList', noteController.addList);
 
 router.post('/:id/:list_id/addListElement', noteController.addListElement);
 
+router.post('/:id/moveNoteElements', noteController.moveNoteElements);
+
 export { router };

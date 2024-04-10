@@ -1,6 +1,6 @@
 fileignoreconfig:
 - filename: client/package-lock.json
-  checksum: 3291b00eef5b37cd4c63164cb6e2b913497e79c474e027b0574171512400e6af
-- filename: client/src/components/Login.js
-  checksum: a1c4db09b265ef7ae9942374310b077548ab4cf86c460eaa183631b693b30f6c
+  checksum: 820d5bfbc21914969cff5d30f90938de82cbc339df9463265ccae58d23c8679c
+- filename: client/src/components/Note.js
+  checksum: a81a495175c8aa74484913191a5a6713ba59b5f4fc27f17da078651fec27eb8e
 version: ""

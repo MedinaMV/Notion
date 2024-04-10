@@ -2,49 +2,51 @@ import React from 'react';
 import ListElement from './ListElement';
 
 export default function Paragraph({ type, text, noteId, elements, element_id }) {
-    const [image, setImage] = React.useState(text);
-    const showImageInput = (type === 'image' ? true : false);
-    const isListElement = (type === 'list' ? true : false);
-    const [paragraph, setParagraph] = React.useState('');
-  
-    const handleImageChange = async (event) => {
-      const formData = new FormData();
-      const file = event.target.files[0];
-      formData.append('image', file);
-      if (file) {
-        const request = await fetch(`/notes/${noteId}/${element_id}/updateImage`, {
-          method: 'POST',
-          body: formData
-        });
-        const response = await request.json();
-        setImage(response.url);
-      }
+  const [image, setImage] = React.useState(text);
+  const showImageInput = (type === 'image' ? true : false);
+  const isListElement = (type === 'list' ? true : false);
+  const [paragraph, setParagraph] = React.useState('');
+
+  const handleImageChange = async (event) => {
+    const formData = new FormData();
+    const file = event.target.files[0];
+    formData.append('image', file);
+    if (file) {
+      const request = await fetch(`/notes/${noteId}/${element_id}/updateImage`, {
+        method: 'POST',
+        body: formData
+      });
+      const response = await request.json();
+      setImage(response.url);
+    }
+  };
+
+  const handleStopTyping = React.useCallback(async () => {
+    if (paragraph !== '') {
+      console.log(`/notes/${noteId}/${element_id}/editParagraph`);
+      const request = await fetch(`/notes/${noteId}/${element_id}/editParagraph`, {
+        method: 'POST',
+        headers: { 'Content-type': 'application/json' },
+        body: JSON.stringify({ paragraph: paragraph })
+      })
+      await request.json();
+    }
+  }, [element_id, noteId, paragraph]);
+
+  React.useEffect(() => {
+    const typingTimer = setTimeout(handleStopTyping, 1000);
+    return () => {
+      clearTimeout(typingTimer);
     };
-  
-    const handleStopTyping = React.useCallback(async () => { 
-      if(paragraph !== ''){
-        const request = await fetch(`/notes/${noteId}/${element_id}/editParagraph`, {
-          method: 'POST',
-          headers: {'Content-type': 'application/json'},
-          body: JSON.stringify({paragraph: paragraph}) 
-        })
-        await request.json();
-      }
-    }, [element_id, noteId, paragraph]);
-  
-    React.useEffect(() => {
-      const typingTimer = setTimeout(handleStopTyping, 1000);
-      return () => {
-        clearTimeout(typingTimer);
-      };
-    }, [paragraph, handleStopTyping]);
-  
-    const handleChange = (event) => {
-      const newParagraph = event.target.value;
-      setParagraph(newParagraph);
-    };
-  
-    return (
+  }, [paragraph, handleStopTyping]);
+
+  const handleChange = (event) => {
+    const newParagraph = event.target.value;
+    setParagraph(newParagraph);
+  };
+
+  return (
+    <div className='container'>
       <div className='paragraphStyle'>
         {showImageInput ? (
           image ? (
@@ -54,11 +56,13 @@ export default function Paragraph({ type, text, noteId, elements, element_id }) 
           )
         ) : (
           isListElement ? (
-            <ListElement elements={elements} noteId={noteId} listId={element_id}/>
+            <ListElement elements={elements} noteId={noteId} listId={element_id} />
           ) : (
             <textarea onChange={handleChange} placeholder='Your text goes here'>{text}</textarea>
           )
         )}
       </div>
-    );
+    </div>
+
+  );
 }

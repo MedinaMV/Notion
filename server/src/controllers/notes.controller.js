@@ -18,13 +18,13 @@ noteController.createNote = async (req, res) => {
 };
 
 noteController.addImage = async (req, res) => {
-    const noteId = req.params.id;
-    if(!noteId) {
+    const { id } = req.params;
+    if(!id) {
         res.status(400).send({ message: 'No note selected' })
     }
-    const note = await Note.findById(noteId);
-
-    note.images.push({});
+    const note = await Note.findById(id);
+    const length  = note.paragraphs.length + note.images.length + note.lists.length;
+    note.images.push({order: length+1});
     note.save();
 
     res.status(200).send({ ok: true, _id: note.images[note.images.length - 1]._id });
@@ -67,31 +67,27 @@ noteController.updateImage = async (req, res) => {
 };
 
 noteController.addParagraph = async (req, res) => {
-    const noteId = req.params.id;
-    if(!noteId) {
+    const { id } = req.params;
+    if(!id) {
         res.status(400).send({ message: 'No note selected' });
     }else {
-        const note = await Note.findById(noteId);
-        note.paragraphs.push({content: ''});
+        const note = await Note.findById(id);
+        const length  = note.paragraphs.length + note.images.length + note.lists.length;
+        note.paragraphs.push({content: '', order: length+1});
         await note.save();
-        const lastParagraph = note.paragraphs.reduce((elementGreaterTimestamp, actualElement) => {
-            if (actualElement.creation_time > elementGreaterTimestamp.creation_time) {
-                return actualElement;
-            } else {
-                return elementGreaterTimestamp;
-            }
-        });
+        const lastParagraph = note.paragraphs[note.paragraphs.length-1];
         res.status(200).send({ message: 'Paragraph inserted correctly', _id: lastParagraph.id});
     }
 };
 
 noteController.addList = async (req, res) => {
-    const noteId = req.params.id;
-    if(!noteId) {
+    const { id } = req.params;
+    if(!id) {
         res.status(400).send({ message: 'No note selected' });
     }else {
-        const note = await Note.findById(noteId);
-        note.lists.push({});
+        const note = await Note.findById(id);
+        const length  = note.paragraphs.length + note.images.length + note.lists.length;
+        note.lists.push({content: [], order: length+1});
         await note.save();
         res.status(200).send({ message: 'List inserted successfully', _id: note.lists[note.lists.length - 1].id});
     }
@@ -171,12 +167,95 @@ noteController.getNote = async (req, res) => {
             ...note.lists.map(list => ({ ...list._doc }))
         ];
 
-        const sortedElements = allElements.sort((a, b) => b.creation_time - a.creation_time).reverse();
+        const sortedElements = allElements.sort((a, b) => b.order - a.order).reverse();
 
         res.status(200).json({ elements: sortedElements });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
+
+noteController.moveNoteElements = async (req, res) => {
+    const { id } = req.params;
+    const { sourceId, destinationId, sourceType, destinationType } = req.body;
+
+    if(!id || !sourceId || !destinationId || !sourceType || !destinationType) {
+        res.status(400).send({ok: false, message: 'Bad request'});
+        return;
+    }
+
+    const note = await Note.findById(id);
+
+    let sourceElement;
+    if(sourceType === 'paragraph'){
+        sourceElement = searchParagraphs(note,sourceId); 
+    } else if(sourceType === 'image') {
+        sourceElement = searchImages(note,sourceId); 
+    }else {
+        sourceElement = searchList(note,sourceId); 
+    };
+
+    let destinationElement;
+    if(destinationType === 'paragraph'){
+        destinationElement = searchParagraphs(note,destinationId); 
+    } else if(destinationType === 'image') {
+        destinationElement = searchImages(note,destinationId); 
+    }else {
+        destinationElement = searchList(note,destinationId); 
+    };
+
+    const one = sourceElement.order;
+    sourceElement.order = destinationElement.order;
+    destinationElement.order = one;
+
+    if (sourceElement.type === "paragraph") {
+        note.paragraphs.push(sourceElement);
+    } else if (sourceElement.type === 'image') {
+        note.images.push(sourceElement);
+    } else if (sourceElement.type === 'list') { 
+        note.lists.push(sourceElement);
+    }
+
+    if (destinationElement.type === "paragraph") {
+        note.paragraphs.push(destinationElement);
+    } else if (destinationElement.type === 'image') {
+        note.images.push(destinationElement);
+    } else if (destinationElement.type === 'list') { 
+        note.lists.push(destinationElement);
+    }
+    await note.save();
+    
+    res.status(200).send({ok: true, message: 'All ok'});
+}
+
+function searchParagraphs(note, id) {
+    return note.paragraphs.find((element) => {
+        if(element.id === id) {
+            note.paragraphs.splice(note.paragraphs.indexOf(element),1);
+            console.log(`\n\nsearch Para: ${element}`);
+            return element;
+        }
+    });
+}
+
+function searchImages(note, id) {
+    return note.images.find((element) => {
+        if(element.id === id ) {
+            note.images.splice(note.images.indexOf(element),1);
+            console.log(`\n\nsearch img: ${element}`);
+            return element;
+        }
+    });
+}
+
+function searchList(note, id) {
+    return note.lists.find((element) => {
+        if(element.id === id) {
+            note.lists.splice(note.lists.indexOf(element),1);
+            console.log(`\n\nsearch list: ${element}`);
+            return element;
+        }
+    });
+}
 
 export default noteController;

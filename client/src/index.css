@@ -20,7 +20,7 @@ code {
 
 .lateral {
   width: 210px; /* Aumentamos el ancho de la barra lateral */
-  background-color: #333;
+  background-color: rgb(33 37 41);
   color: white;
   display: flex;
   flex-direction: column;
@@ -44,7 +44,7 @@ code {
   height: 50px;
   width: 100%;
   /*border-radius: 20%; Hace que el botón sea redondeado */
-  background-color: #333;
+  background-color:rgb(33 37 41);
   color: white;
   border: none;
   cursor: pointer;
@@ -76,7 +76,7 @@ code {
 }
 
 .noteRowButton {
-  background-color: #333;
+  background-color: rgb(33 37 41);
   border: none;
   border-radius: 30%;
   height: 30px;
@@ -135,10 +135,6 @@ code {
   cursor: pointer;
 }
 
-/*
-
-*/
-
 .container {
   max-width: 400px;
   margin: 0 auto;
@@ -178,27 +174,3 @@ ul {
 li {
   margin-bottom: 5px;
 }
-
-
-
-/* End CSS related with the Paragraph component */
-
-
-/*.buttonsContainer {
-  display: flex;
-  margin-right: 5px;
-  gap: 5px;  Espacio entre los botones 
-}
-
-.buttonsContainer button {
-  border-radius: 30%;
-  height: 30px;
-  background-color: #333;
-  border: none;
-}
-
-.buttonsContainer button:hover {
-  background-color: #b8b8b8;
-  border: none;
-  cursor: pointer;
-}*/

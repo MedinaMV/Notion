@@ -34,7 +34,7 @@ export default function LateralMenu({ setNoteSelected }) {
   
     return (
       <div className="lateral">
-        <div style={{ textAlign: 'center'}}>
+        <div style={{ textAlign: 'center', margin: '10px auto'}}>
           <h2> My Notes </h2>
         </div>
         {rows.map(row => (
