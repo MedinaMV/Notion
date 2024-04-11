@@ -16,7 +16,30 @@ noteController.createNote = async (req, res) => {
         res.status(500).send({ message: err });
     }
 };
+// En tu archivo notes.controller.js
+noteController.addAssociatedNote = async (req, res) => {
+    const noteId = req.params.id;
+    const associatedNoteId = req.params.associatedNoteId;
 
+    if(!noteId || !associatedNoteId) {
+        return res.status(400).send({ message: 'Both noteId and associatedNoteId are required' });
+    }
+
+    const note = await Note.findById(noteId);
+    const associatedNote = await Note.findById(associatedNoteId);
+
+    if(!note || !associatedNote) {
+        return res.status(404).send({ message: 'Note not found' });
+    }
+
+    note.associatedNotes.push({items: associatedNoteId});
+    await note.save();
+
+    // Fetch the note again along with the associated notes
+    const updatedNote = await Note.findById(noteId).populate('associatedNotes.items');
+
+    res.status(200).send(updatedNote);
+};
 noteController.addImage = async (req, res) => {
     const noteId = req.params.id;
     if(!noteId) {

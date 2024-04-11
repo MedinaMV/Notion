@@ -11,6 +11,8 @@ router.get('/getAllNotes/:user', noteController.getAllNotes);
 
 router.get('/:id/getNote', noteController.getNote);
 
+router.post('/:id/addAssociatedNote/:associatedNoteId', noteController.addAssociatedNote);
+
 router.post('/:id/addImage', noteController.addImage);
 
 router.post('/:id/:image_id/updateImage', noteController.updateImage);
