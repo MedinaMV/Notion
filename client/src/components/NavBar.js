@@ -20,7 +20,7 @@ export default function NavBar() {
                             <Link to="/" class="nav-link active" aria-current="page" > My Notes</Link>
                         </li>
                         <li class="nav-item">
-                            <Link class="nav-link" to="/">Collections</Link>
+                            <Link class="nav-link" to="/collection">Collections</Link>
                         </li>
                         <li class="nav-item">
                             <Link class="nav-link" to="/">Friends</Link>

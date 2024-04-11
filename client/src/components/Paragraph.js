@@ -23,7 +23,6 @@ export default function Paragraph({ type, text, noteId, elements, element_id }) 
 
   const handleStopTyping = React.useCallback(async () => {
     if (paragraph !== '') {
-      console.log(`/notes/${noteId}/${element_id}/editParagraph`);
       const request = await fetch(`/notes/${noteId}/${element_id}/editParagraph`, {
         method: 'POST',
         headers: { 'Content-type': 'application/json' },

@@ -4,6 +4,7 @@ import cors from "cors";
 import fileUpload from "express-fileupload";
 import { router as notesRouter } from './routes/notes.routes.js'
 import { router as userRouter } from './routes/user.routes.js'
+import { router as collectionRouter } from './routes/collection.routes.js'
 
 const app = express();
 dotnev.config();
@@ -20,5 +21,6 @@ app.use(express.json());
 // Routes
 app.use('/notes', notesRouter);
 app.use('/user', userRouter);
+app.use('/collection', collectionRouter);
 
 export default app;

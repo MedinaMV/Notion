@@ -1,4 +1,5 @@
 import Note from '../models/Note.js'
+import Collection from '../models/Collection.js';
 
 const noteController = {};
 
@@ -133,6 +134,20 @@ noteController.deleteNote = async (req, res) => {
        if (!Id) {
            return res.status(400).json({ message: 'No note ID provided' });
        }
+       const collections = await Collection.find({
+        'notes': {
+          $elemMatch: {
+            id: Id
+          }
+        }
+      });
+
+      collections.forEach(async (element) => {
+        await Collection.updateOne(
+            { _id: element.id },
+            { $pull: { notes: { id: Id } } }
+        );
+      })
        await Note.findByIdAndDelete(Id);
        res.status(200).json({ message: 'Note deleted successfully' });
    } catch (err) {
