@@ -1,6 +1,4 @@
 fileignoreconfig:
-- filename: server/routes/notes.js
-  checksum: 57c94925aba374901d4767774e4a9c9f3d433c2b4b7ca741c0bf56baf71330a8
-- filename: client/src/App.js
-  checksum: e59d1d2e740662fdbf3dbea8564175d84be2c8a483c67ff214e800fa7f23f718
+- filename: client/src/components/Note.js
+  checksum: 53c411080774f2571d1b7d3d9b3a86f202168c54f38d9a6f7bd0b7d714474ce6
 version: ""

@@ -1,22 +1,23 @@
 import mongoose from 'mongoose';
 
-const noteSchema = new mongoose.Schema({
+const NoteSchema = new mongoose.Schema({
     title: { type: String, required: true },
     paragraphs: [{
         type: { type: String, default: 'paragraph' },
         content: { type: String },
-        creation_time: { type: Date, default: Date.now }
+        order: { type: Number, required: true }
     }],
     images: [{
         type: { type: String, default: 'image' },
         content: { type: String },
-        creation_time: { type: Date, default: Date.now}
+        order: { type: Number, required: true }
     }],
     lists: [{
         type: { type: String, default: 'list' },
         items: [{ content: { type: String } }],
-        creation_time: { type: Date, default: Date.now }
-    }]
+        order: { type: Number, required: true }
+    }],
+    user: { type: String, required: true }
 });
 
-export default mongoose.model('Notes', noteSchema);
+export default mongoose.model('Notes', NoteSchema);
