@@ -157,7 +157,7 @@ noteController.deleteNote = async (req, res) => {
 
 noteController.getAllNotes = async (req, res) => {
     try {
-        const { userId } = req.session;
+        const { userId } = req.cookies;
         const allNotes = await Note.find({user: userId}, '_id title');
         if (!allNotes || allNotes.length === 0) {
             return res.status(404).json({ message: 'No notes found' });

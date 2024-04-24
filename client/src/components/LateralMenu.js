@@ -6,7 +6,13 @@ export default function LateralMenu({ setNoteSelected }) {
   const [rows, setRows] = React.useState([]);
   React.useEffect(() => {
     (async () => {
-      const request = await fetch(url + `/notes/getAllNotes`);
+      const request = await fetch(url + `/notes/getAllNotes`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
       const response = await request.json();
       setRows(response.notes ?? [])
     })();

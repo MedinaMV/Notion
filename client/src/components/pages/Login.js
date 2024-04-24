@@ -21,7 +21,7 @@ export default function Login({setLoggedIn}) {
         });
         const response = await request.json();
         if(response.ok) {
-            Cookies.set('session', 1, { expires: 7, domain: 'localhost', secure: false, sameSite: 'Lax' });
+            Cookies.set('userId', response.user);
             setLoggedIn(true);
             navigate('/');
         } else {

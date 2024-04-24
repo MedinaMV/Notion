@@ -7,6 +7,7 @@ import fileUpload from "express-fileupload";
 import { router as notesRouter } from './routes/notes.routes.js';
 import { router as userRouter } from './routes/user.routes.js';
 import { router as collectionRouter } from './routes/collection.routes.js';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 dotnev.config();
@@ -15,6 +16,7 @@ dotnev.config();
 
 // Settings
 app.set('port', process.env.PORT || 8080)
+app.use(cookieParser())
 app.use(cors({ credentials: true, origin: true, }));
 
 const mongoDBStore = connectMongo(session);
