@@ -1,4 +1,5 @@
 import React from 'react';
+import url from '../api/api-calls.js';
 
 export default function ListElement({elements, noteId, listId}) {
 
@@ -16,7 +17,7 @@ export default function ListElement({elements, noteId, listId}) {
     const addElement = async () => {
       const formData = new FormData();
       formData.append('element', item);
-      const request = await fetch(`/notes/${noteId}/${listId}/addListElement`, {
+      const request = await fetch(url + `/notes/${noteId}/${listId}/addListElement`, {
         method: 'POST', body: formData
       });
       const response = await request.json();

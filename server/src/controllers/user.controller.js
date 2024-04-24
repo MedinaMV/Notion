@@ -4,8 +4,8 @@ const userController = {};
 userController.register = async (req, res) => {
     const { user, email, password, confirm_password } = req.body;
 
-    if(!user || !email || !password || !confirm_password){
-        res.status(400).send({ok: false, message: 'All fields are required'});
+    if (!user || !email || !password || !confirm_password) {
+        res.status(400).send({ ok: false, message: 'All fields are required' });
         return;
     }
 
@@ -26,18 +26,18 @@ userController.register = async (req, res) => {
 
 userController.logIn = async (req, res) => {
     const { email, password } = req.body;
-    let message = false;
-    const user = await User.findOne({email});
-    if(user) {
+    const user = await User.findOne({ email });
+    if (user) {
         const match = await user.matchPassword(password);
-        if(match) {
-            message = true;
+        if (match) {
+            req.session.userId = user.id;
+            console.log(req.session);
+            res.status(200).send({ ok: true, user: user.id });
+        } else {
+            res.status(400).send({ ok: false, message: 'Incorrect combination of Email or Password.' });
         }
-    }
-    if(message) {
-        res.status(200).send({ ok: true, user: user.id});
-    }else {
-        res.status(400).send({ok: false, message: 'Incorrect combination of Email or Password.'});
+    } else {
+        res.status(400).send({ ok: false, message: 'User not found.' });
     }
 };
 

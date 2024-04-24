@@ -4,12 +4,13 @@ import Note from "../models/Note.js";
 const collectionController = {};
 
 collectionController.createCollection = async (req, res) => {
-    const { name, user } = req.body;
-    if(!name || !user) {
+    const { name } = req.body;
+    const { userId } = req.session;
+    if(!name || !userId) {
         res.status(400).send({ok: false, message: 'Bad Request'});
         return;
     }
-    const newCollection = new Collection({name,user});
+    const newCollection = new Collection({name: name,user: userId});
     await newCollection.save();
     return res.status(201).send({ ok: true, _id: newCollection.id });
 };
@@ -28,11 +29,11 @@ collectionController.deleteCollection = async (req, res) => {
 };
 
 collectionController.getAllCollections = async (req, res) => {
-    const { id } = req.params;
-    if(!id) {
+    const { userId } = req.session;
+    if(!userId) {
         return res.status(400).send({ok: false, message: 'Bad Request'});
     }
-    const allCollections = await Collection.find({user: id});
+    const allCollections = await Collection.find({user: userId});
     if (!allCollections || allCollections.length === 0) {
         return res.status(404).json({ message: 'No collections found' });
     }

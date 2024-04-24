@@ -7,7 +7,7 @@ router.post('/createCollection', collectionController.createCollection);
 
 router.delete('/:id/deleteCollection', collectionController.deleteCollection);
 
-router.get('/getAllCollections/:id', collectionController.getAllCollections);
+router.get('/getAllCollections', collectionController.getAllCollections);
 
 router.post('/:collectionId/addNote/:noteId', collectionController.collectionAddNote);
 

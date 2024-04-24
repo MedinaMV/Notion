@@ -1,5 +1,6 @@
 import React from 'react';
 import ListElement from './ListElement';
+import url from '../api/api-calls.js';
 
 export default function Paragraph({ type, text, noteId, elements, element_id }) {
   const [image, setImage] = React.useState(text);
@@ -12,7 +13,7 @@ export default function Paragraph({ type, text, noteId, elements, element_id }) 
     const file = event.target.files[0];
     formData.append('image', file);
     if (file) {
-      const request = await fetch(`/notes/${noteId}/${element_id}/updateImage`, {
+      const request = await fetch(url + `/notes/${noteId}/${element_id}/updateImage`, {
         method: 'POST',
         body: formData
       });
@@ -23,7 +24,7 @@ export default function Paragraph({ type, text, noteId, elements, element_id }) 
 
   const handleStopTyping = React.useCallback(async () => {
     if (paragraph !== '') {
-      const request = await fetch(`/notes/${noteId}/${element_id}/editParagraph`, {
+      const request = await fetch(url + `/notes/${noteId}/${element_id}/editParagraph`, {
         method: 'POST',
         headers: { 'Content-type': 'application/json' },
         body: JSON.stringify({ paragraph: paragraph })

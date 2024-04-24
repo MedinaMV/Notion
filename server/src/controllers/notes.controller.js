@@ -5,12 +5,12 @@ const noteController = {};
 
 noteController.createNote = async (req, res) => {
     try{
-        const { user } = req.params;
+        const { userId } = req.session;
         const { title } = req.body;
         if(!title) {
             res.status(400).json({ error: "No title found" });
         }
-        const newNote = new Note({ title, user });
+        const newNote = new Note({ title: title, user: userId });
         await newNote.save();
         res.status(201).json({ message: 'Note inserted successfully!', _id: newNote.id });
     }catch(err){
@@ -157,8 +157,8 @@ noteController.deleteNote = async (req, res) => {
 
 noteController.getAllNotes = async (req, res) => {
     try {
-        const { user } = req.params;
-        const allNotes = await Note.find({user: user}, '_id title');
+        const { userId } = req.session;
+        const allNotes = await Note.find({user: userId}, '_id title');
         if (!allNotes || allNotes.length === 0) {
             return res.status(404).json({ message: 'No notes found' });
         }
@@ -247,7 +247,6 @@ function searchParagraphs(note, id) {
     return note.paragraphs.find((element) => {
         if(element.id === id) {
             note.paragraphs.splice(note.paragraphs.indexOf(element),1);
-            console.log(`\n\nsearch Para: ${element}`);
             return element;
         }
     });
@@ -257,7 +256,6 @@ function searchImages(note, id) {
     return note.images.find((element) => {
         if(element.id === id ) {
             note.images.splice(note.images.indexOf(element),1);
-            console.log(`\n\nsearch img: ${element}`);
             return element;
         }
     });
@@ -267,7 +265,6 @@ function searchList(note, id) {
     return note.lists.find((element) => {
         if(element.id === id) {
             note.lists.splice(note.lists.indexOf(element),1);
-            console.log(`\n\nsearch list: ${element}`);
             return element;
         }
     });
