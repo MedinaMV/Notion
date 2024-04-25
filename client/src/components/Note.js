@@ -48,6 +48,7 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
     const request = await fetch(url + `/notes/${noteId}/moveNoteElements`, {
       method: 'POST',
       headers: { 'Content-type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         sourceId: elements[result.source.index]._id, 
         sourceType: elements[result.source.index].type, 
@@ -55,7 +56,6 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
         destinationType: elements[result.destination.index].type
       })
     });
-
     await request.json();
 
   };

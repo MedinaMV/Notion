@@ -5,7 +5,7 @@ const noteController = {};
 
 noteController.createNote = async (req, res) => {
     try{
-        const { userId } = req.session;
+        const { userId } = req.cookies;
         const { title } = req.body;
         if(!title) {
             res.status(400).json({ error: "No title found" });

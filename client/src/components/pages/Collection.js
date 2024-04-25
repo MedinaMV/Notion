@@ -7,7 +7,13 @@ export default function Collection() {
 
     React.useEffect(() => {
         (async () => {
-            const request = await fetch(url + `/collection/getAllCollections`);
+            const request = await fetch(url + `/collection/getAllCollections`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
             const response = await request.json();
             setCollections(response.collections ?? [])
         })();
@@ -19,7 +25,8 @@ export default function Collection() {
             const request = await fetch(url + '/collection/createCollection', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: input })
+                body: JSON.stringify({ name: input }),
+                credentials: 'include',
             });
             const response = await request.json();
             const newCollection = { _id: response._id, name: input };
@@ -64,7 +71,13 @@ function CollectionElement({ collection, deleteCollection }) {
 
     React.useEffect(() => {
         (async () => {
-            const request = await fetch(url + `/notes/getAllNotes`);
+            const request = await fetch(url + `/notes/getAllNotes`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
             const response = await request.json();
             setNotes(response.notes ?? [])
         })();
@@ -93,7 +106,6 @@ function CollectionElement({ collection, deleteCollection }) {
     const handleClickOpenViewNotes = async () => {
         const request = await fetch(url + `/collection/${collection._id}/getNotesByCollection`);
         const response = await request.json();
-        console.log('Data recibida: ', response.notes);
         setCollectionNotes(response.notes);
         setOpen1(true);
     };

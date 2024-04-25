@@ -5,7 +5,7 @@ const collectionController = {};
 
 collectionController.createCollection = async (req, res) => {
     const { name } = req.body;
-    const { userId } = req.session;
+    const { userId } = req.cookies;
     if(!name || !userId) {
         res.status(400).send({ok: false, message: 'Bad Request'});
         return;
@@ -29,7 +29,7 @@ collectionController.deleteCollection = async (req, res) => {
 };
 
 collectionController.getAllCollections = async (req, res) => {
-    const { userId } = req.session;
+    const { userId } = req.cookies;
     if(!userId) {
         return res.status(400).send({ok: false, message: 'Bad Request'});
     }

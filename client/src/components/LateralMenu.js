@@ -24,6 +24,7 @@ export default function LateralMenu({ setNoteSelected }) {
       fetch(url + `/notes/createNote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ title: input })
       }).then(response => response.json())
         .then(data => {

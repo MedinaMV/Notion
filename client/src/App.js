@@ -12,7 +12,7 @@ import Collection from './components/pages/Collection';
 import Cookies from 'js-cookie';
 
 export default function App() {
-  const [isLoggedIn, setLoggedIn] = React.useState(Cookies.get('session') === '1' ? true : false);
+  const [isLoggedIn, setLoggedIn] = React.useState(Cookies.get('userId') ? true : false);
   return (
     <>
     {isLoggedIn ? <NavBar /> : <></>}
