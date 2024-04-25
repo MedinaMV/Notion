@@ -195,8 +195,7 @@ noteController.moveNoteElements = async (req, res) => {
     const { sourceId, destinationId, sourceType, destinationType } = req.body;
 
     if(!id || !sourceId || !destinationId || !sourceType || !destinationType) {
-        res.status(400).send({ok: false, message: 'Bad request'});
-        return;
+        return res.status(400).send({ok: false, message: 'Bad request'});
     }
 
     const note = await Note.findById(id);
@@ -240,8 +239,8 @@ noteController.moveNoteElements = async (req, res) => {
     }
     await note.save();
     
-    res.status(200).send({ok: true, message: 'All ok'});
-}
+    return res.status(200).send({ok: true, message: 'All ok'});
+};
 
 function searchParagraphs(note, id) {
     return note.paragraphs.find((element) => {
@@ -250,7 +249,7 @@ function searchParagraphs(note, id) {
             return element;
         }
     });
-}
+};
 
 function searchImages(note, id) {
     return note.images.find((element) => {
@@ -259,7 +258,7 @@ function searchImages(note, id) {
             return element;
         }
     });
-}
+};
 
 function searchList(note, id) {
     return note.lists.find((element) => {
@@ -268,6 +267,31 @@ function searchList(note, id) {
             return element;
         }
     });
-}
+};
+
+/* TODO: Cristian
+*  Añadir a la lista "shared" el id del usuario al que se le desea compartir la nota.
+*  
+*/
+noteController.shareNote = async (req, res) => {
+    // Id de la nota a compartir e Id del usuario al que se le desea compartir la nota.
+    const { noteId, userId } = req.body;
+
+
+};
+
+/* TODO: Cristian
+*
+*  Devolver todas las notas que hayan sido compartidas con el usuario indicado
+*  
+*/
+noteController.getSharedNotes= async (req, res) => {
+    // Id del usuario que desea ver las notas que le ha compartido su amigo.
+    const { userId } = req.cookies;
+    // Nombre del amigo que ha compartido las notas.
+    const { friend } = req.body;
+
+
+};
 
 export default noteController;

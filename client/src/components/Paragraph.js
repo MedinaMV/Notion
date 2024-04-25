@@ -15,7 +15,8 @@ export default function Paragraph({ type, text, noteId, elements, element_id }) 
     if (file) {
       const request = await fetch(url + `/notes/${noteId}/${element_id}/updateImage`, {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'include'
       });
       const response = await request.json();
       setImage(response.url);
@@ -27,7 +28,8 @@ export default function Paragraph({ type, text, noteId, elements, element_id }) 
       const request = await fetch(url + `/notes/${noteId}/${element_id}/editParagraph`, {
         method: 'POST',
         headers: { 'Content-type': 'application/json' },
-        body: JSON.stringify({ paragraph: paragraph })
+        body: JSON.stringify({ paragraph: paragraph }),
+        credentials: 'include'
       })
       await request.json();
     }

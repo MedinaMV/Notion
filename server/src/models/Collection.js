@@ -6,7 +6,10 @@ const CollectionSchema = new mongoose.Schema({
         id: { type: String },
         title: { type: String }
     }],
-    user: { type: String, required: true }
+    user: { type: String, required: true },
+    shared: [{
+        user: { type: String, required: true },
+    }]
 });
 
 export default mongoose.model('Collection', CollectionSchema);

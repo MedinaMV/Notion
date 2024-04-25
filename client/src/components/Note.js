@@ -9,7 +9,7 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
     const flag = event.target.getAttribute('data');
     let Id = '';
     if (flag === 'paragraph') {
-      const request = await fetch(url + `/notes/${noteId}/addParagraph`, { method: 'POST', headers: { 'Content-type': 'application/json' } });
+      const request = await fetch(url + `/notes/${noteId}/addParagraph`, { method: 'POST', headers: { 'Content-type': 'application/json' }, credentials: 'include' });
       const body = await request.json();
       Id = body._id;
 
@@ -18,7 +18,7 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
 
       setNoteSelected(prevState => ({ ...prevState, elements: newElements }));
     } else if (flag === 'list') {
-      const request = await fetch(url + `/notes/${noteId}/addList`, { method: 'POST', headers: { 'Content-type': 'application/json' } });
+      const request = await fetch(url + `/notes/${noteId}/addList`, { method: 'POST', headers: { 'Content-type': 'application/json' }, credentials: 'include' });
       const body = await request.json();
 
       let newElements = elements;
@@ -27,7 +27,7 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
 
       setNoteSelected(prevState => ({ ...prevState, elements: newElements }));
     } else {
-      const request = await fetch(url + `/notes/${noteId}/addImage`, { method: 'POST', headers: { 'Content-type': 'application/json' } });
+      const request = await fetch(url + `/notes/${noteId}/addImage`, { method: 'POST', headers: { 'Content-type': 'application/json' }, credentials: 'include' });
       const body = await request.json();
       Id = body._id;
       let newElements = elements;

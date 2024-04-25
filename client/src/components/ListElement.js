@@ -18,7 +18,7 @@ export default function ListElement({elements, noteId, listId}) {
       const formData = new FormData();
       formData.append('element', item);
       const request = await fetch(url + `/notes/${noteId}/${listId}/addListElement`, {
-        method: 'POST', body: formData
+        method: 'POST', body: formData, credentials: 'include'
       });
       const response = await request.json();
       setList([...list, <li key={response._id}>{item}</li>]);

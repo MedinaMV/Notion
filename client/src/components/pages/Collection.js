@@ -36,7 +36,8 @@ export default function Collection() {
 
     async function deleteCollection(element) {
         const request = await fetch(url + `/collection/${element._id}/deleteCollection`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: 'include',
         });
         await request.json();
         setCollections(collections.filter(elemento => elemento !== element));
@@ -104,7 +105,13 @@ function CollectionElement({ collection, deleteCollection }) {
     }
 
     const handleClickOpenViewNotes = async () => {
-        const request = await fetch(url + `/collection/${collection._id}/getNotesByCollection`);
+        const request = await fetch(url + `/collection/${collection._id}/getNotesByCollection`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+        });
         const response = await request.json();
         setCollectionNotes(response.notes);
         setOpen1(true);
@@ -153,7 +160,8 @@ function SimpleDialog(props) {
 
     const handleListItemClick = async (value) => {
         const request = await fetch(url + `/collection/${collectionId}/addNote/${value._id}`, {
-            method: 'POST'
+            method: 'POST',
+            credentials: 'include'
         });
         await request.json();
         onClose(value);

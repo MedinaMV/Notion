@@ -26,4 +26,8 @@ router.post('/:id/:list_id/addListElement', Authentication, noteController.addLi
 
 router.post('/:id/moveNoteElements', Authentication, noteController.moveNoteElements);
 
+router.put('/shareNote', Authentication, noteController.shareNote);
+
+router.get('/getSharedNotes', Authentication, noteController.getSharedNotes);
+
 export { router };

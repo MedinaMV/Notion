@@ -78,5 +78,31 @@ collectionController.getNotesByCollection = async (req, res) => {
     return res.status(200).send({ok: true, notes: allNotes});
 };
 
+/* TODO: Cristian
+*
+*  Añadir a la lista "shared" el id del usuario al que se le desea compartir la colección.
+*  
+*/
+collectionController.shareCollection = async (req, res) => {
+    // Id de la colección a compartir e Id del usuario al que se le desea compartir la colección.
+    const { noteId, userId } = req.body;
+
+
+};
+
+/* TODO: Cristian
+*
+*  Devolver todas las colecciones que hayan sido compartidas con el usuario indicado.
+*  
+*/
+collectionController.getSharedCollections = async (req, res) => {
+    // Id del usuario que desea ver las colecciones que le ha compartido su amigo.
+    const { userId } = req.cookies;
+    // Nombre del amigo que ha compartido las colecciones.
+    const { friend } = req.body;
+
+
+};
+
 
 export default collectionController;
