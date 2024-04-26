@@ -31,7 +31,7 @@ userController.logIn = async (req, res) => {
         const match = await user.matchPassword(password);
         if (match) {
             req.session.userId = user.id;
-            res.status(200).send({ ok: true, user: user.id });
+            res.status(200).send({ ok: true, user: user.id , role: user.role});
         } else {
             res.status(400).send({ ok: false, message: 'Incorrect combination of Email or Password.' });
         }

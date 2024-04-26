@@ -9,19 +9,33 @@ import NavBar from './components/NavBar';
 import Register from './components/pages/Register';
 import PrivateRoutes from './components/PrivateRoutes';
 import Collection from './components/pages/Collection';
+import AdminPanel from './components/pages/Admin';
 import Cookies from 'js-cookie';
+import AdminNavBar from './components/AdminNavBar';
 
 export default function App() {
   const [isLoggedIn, setLoggedIn] = React.useState(Cookies.get('userId') ? true : false);
+  const [isAdmin, setAdmin] = React.useState(window.sessionStorage.getItem('role') === 'ADMIN' ? true : false);
   return (
     <>
-    {isLoggedIn ? <NavBar /> : <></>}
+      {
+        isLoggedIn ? (
+          isAdmin ? (
+            <AdminNavBar />
+          ) : (
+            <NavBar />
+          )
+        ) : (
+          <></>
+        )
+      }
       <Routes>
         <Route element={<PrivateRoutes isLoggedIn={isLoggedIn} />}>
           <Route path='/' element={<MainPage />} />
-          <Route path='/collection' element={<Collection />} /> 
+          <Route path='/collection' element={<Collection />} />
+          <Route path='/admin' element={<AdminPanel />} />
         </Route>
-        <Route path='/login' element={<Login setLoggedIn={setLoggedIn} />} />
+        <Route path='/login' element={<Login setLoggedIn={setLoggedIn} setAdmin={setAdmin} />} />
         <Route path='/register' element={<Register />} />
       </Routes>
     </>

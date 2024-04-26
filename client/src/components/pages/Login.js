@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import Cookies from 'js-cookie';
 import url from '../../api/api-calls.js';
 
-export default function Login({setLoggedIn}) {
+export default function Login({ setLoggedIn, setAdmin }) {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState(null);
@@ -23,7 +23,9 @@ export default function Login({setLoggedIn}) {
         if(response.ok) {
             Cookies.set('userId', response.user);
             setLoggedIn(true);
-            navigate('/');
+            setAdmin(response.role === 'ADMIN' ? true : false);
+            window.sessionStorage.setItem('role', response.role);
+            response.role === 'ADMIN' ? navigate('/admin') : navigate('/');
         } else {
             setError(response.message);
         }
