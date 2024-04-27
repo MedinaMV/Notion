@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CollectionsIcon from '@mui/icons-material/Collections';
 import GroupIcon from '@mui/icons-material/Group';
 
-export default function UserRow({ type, title, showEdit, handleEdit, handleDelete }) {
+export default function UserRow({ type, title, showEdit, handleEdit, handleDelete, userId }) {
     let avatar;
     if(type === 'user') {
         avatar = <PersonIcon />;
@@ -26,10 +26,10 @@ export default function UserRow({ type, title, showEdit, handleEdit, handleDelet
                     <p style={{ margin: 'auto 10px' }}>{title}</p>
                 </Grid>
                 <Grid style={{ display: 'flex', alignItems: 'center' }}>
-                    {showEdit ? <IconButton onClick={handleEdit}>
+                    {showEdit ? <IconButton onClick={() => handleEdit(userId)}>
                         <EditIcon />
                     </IconButton> : <></>}
-                    <IconButton onClick={handleDelete}>
+                    <IconButton onClick={() => handleDelete(userId)}>
                         <DeleteIcon />
                     </IconButton>
                 </Grid>

@@ -26,7 +26,7 @@ noteController.addImage = async (req, res) => {
     const note = await Note.findById(id);
     const length  = note.paragraphs.length + note.images.length + note.lists.length;
     note.images.push({order: length+1});
-    note.save();
+    await note.save();
 
     res.status(200).send({ ok: true, _id: note.images[note.images.length - 1]._id });
 };
@@ -61,7 +61,7 @@ noteController.updateImage = async (req, res) => {
                 element.content = response.data.image.url;
             }
         })
-        note.save();
+        await note.save();
 
         res.status(200).send({ ok: true, url: response.data.image.url });
     }

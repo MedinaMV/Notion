@@ -7,8 +7,8 @@ const UserSchema = new Schema({
     password: { type: String, required: true },
     role: { type: String, default: 'USER' },
     friends: [{ 
-        id: { type: String, required: true },
-        name: { type: String, required: true },
+        friendId: { type: String, required: true },
+        title: { type: String, required: true },
     }],
     mailbox: [{
         sender: { type: String, required: true },

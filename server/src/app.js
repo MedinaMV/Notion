@@ -7,6 +7,7 @@ import fileUpload from "express-fileupload";
 import { router as notesRouter } from './routes/notes.routes.js';
 import { router as userRouter } from './routes/user.routes.js';
 import { router as collectionRouter } from './routes/collection.routes.js';
+import { router as adminRouter } from './routes/admin.routes.js';
 import cookieParser from 'cookie-parser';
 
 const app = express();
@@ -51,5 +52,6 @@ app.use(express.json());
 app.use('/notes', notesRouter);
 app.use('/user', userRouter);
 app.use('/collection', collectionRouter);
+app.use('/admin', adminRouter);
 
 export default app;
