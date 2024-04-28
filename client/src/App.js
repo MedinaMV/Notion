@@ -9,9 +9,10 @@ import NavBar from './components/NavBar';
 import Register from './components/pages/Register';
 import PrivateRoutes from './components/PrivateRoutes';
 import Collection from './components/pages/Collection';
+import Cookies from 'js-cookie';
 
 export default function App() {
-  const [isLoggedIn, setLoggedIn] = React.useState(false);
+  const [isLoggedIn, setLoggedIn] = React.useState(Cookies.get('userId') ? true : false);
   return (
     <>
     {isLoggedIn ? <NavBar /> : <></>}

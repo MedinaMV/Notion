@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 export default function NavBar() {
     const navigation = useNavigate();
     function logout(){
-        window.sessionStorage.clear();
+        document.cookie.split(';').forEach(function (c) {
+            document.cookie = c.trim().split('=')[0] + '=;' + 'expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+        });
         navigation(0);
     }
     return (

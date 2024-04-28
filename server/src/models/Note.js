@@ -17,7 +17,10 @@ const NoteSchema = new mongoose.Schema({
         items: [{ content: { type: String } }],
         order: { type: Number, required: true }
     }],
-    user: { type: String, required: true }
+    user: { type: String, required: true },
+    shared: [{
+        user: { type: String, required: true },
+    }]
 });
 
 export default mongoose.model('Notes', NoteSchema);

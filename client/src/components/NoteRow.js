@@ -1,21 +1,26 @@
+import url from '../api/api-calls.js';
+
 export default function NoteRow({ noteRow, manageNoteRows, setNoteSelected }) {
 
-    async function handleClick() {
-      const request = await fetch(`/notes/${noteRow._id}/getNote`);
-      const response = await request.json();
+  async function handleClick() {
+    const request = await fetch(url + `/notes/${noteRow._id}/getNote`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+    const response = await request.json();
 
-      setNoteSelected({
-        title: noteRow.title,
-        paragraphs: response.elements,
-        noteId: noteRow._id
-      });
-    }
+    setNoteSelected({ title: noteRow.title, paragraphs: response.elements, noteId: noteRow._id });
+  }
 
   async function deleteNote() {
     if (window.confirm('Are you sure about deleting this note?')) {
-      const request = await fetch(`/notes/${noteRow._id}/deleteNote`, {
+      const request = await fetch(url + `/notes/${noteRow._id}/deleteNote`, {
         method: 'DELETE',
-        headers: { 'Content-type': 'application/json' }
+        headers: { 'Content-type': 'application/json' },
+        credentials: 'include'
       });
       await request.json();
       manageNoteRows(noteRow, true);

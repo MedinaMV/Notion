@@ -1,13 +1,19 @@
 import { Grid, Paper, Button, Dialog, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import React from 'react';
+import url from '../../api/api-calls.js';
 
 export default function Collection() {
     const [collections, setCollections] = React.useState([]);
 
     React.useEffect(() => {
         (async () => {
-            const userId = window.sessionStorage.getItem('user');
-            const request = await fetch(`/collection/getAllCollections/${userId}`);
+            const request = await fetch(url + `/collection/getAllCollections`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
             const response = await request.json();
             setCollections(response.collections ?? [])
         })();
@@ -16,10 +22,11 @@ export default function Collection() {
     async function createCollection() {
         let input = prompt('Set a name for your new collection');
         if (input) {
-            const request = await fetch('/collection/createCollection', {
+            const request = await fetch(url + '/collection/createCollection', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: input, user: window.sessionStorage.getItem('user') })
+                body: JSON.stringify({ name: input }),
+                credentials: 'include',
             });
             const response = await request.json();
             const newCollection = { _id: response._id, name: input };
@@ -28,8 +35,9 @@ export default function Collection() {
     }
 
     async function deleteCollection(element) {
-        const request = await fetch(`/collection/${element._id}/deleteCollection`, {
-            method: 'DELETE'
+        const request = await fetch(url + `/collection/${element._id}/deleteCollection`, {
+            method: 'DELETE',
+            credentials: 'include',
         });
         await request.json();
         setCollections(collections.filter(elemento => elemento !== element));
@@ -56,8 +64,6 @@ export default function Collection() {
     );
 }
 
-//const emails = ['username@gmail.com', 'user02@gmail.com'];
-
 function CollectionElement({ collection, deleteCollection }) {
     const [notes, setNotes] = React.useState([]);
     const [collectionNotes, setCollectionNotes] = React.useState([]);
@@ -66,8 +72,13 @@ function CollectionElement({ collection, deleteCollection }) {
 
     React.useEffect(() => {
         (async () => {
-            const userId = window.sessionStorage.getItem('user');
-            const request = await fetch(`/notes/getAllNotes/${userId}`);
+            const request = await fetch(url + `/notes/getAllNotes`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
             const response = await request.json();
             setNotes(response.notes ?? [])
         })();
@@ -94,9 +105,14 @@ function CollectionElement({ collection, deleteCollection }) {
     }
 
     const handleClickOpenViewNotes = async () => {
-        const request = await fetch(`/collection/${collection._id}/getNotesByCollection`);
+        const request = await fetch(url + `/collection/${collection._id}/getNotesByCollection`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+        });
         const response = await request.json();
-        console.log('Data recibida: ', response.notes);
         setCollectionNotes(response.notes);
         setOpen1(true);
     };
@@ -143,8 +159,9 @@ function SimpleDialog(props) {
     };
 
     const handleListItemClick = async (value) => {
-        const request = await fetch(`/collection/${collectionId}/addNote/${value._id}`, {
-            method: 'POST'
+        const request = await fetch(url + `/collection/${collectionId}/addNote/${value._id}`, {
+            method: 'POST',
+            credentials: 'include'
         });
         await request.json();
         onClose(value);
