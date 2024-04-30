@@ -192,7 +192,6 @@ function SimpleDialog(props) {
                             </ListItem>
                         )
                     )
-
                 ))}
                 <ListItem disableGutters>
                 </ListItem>

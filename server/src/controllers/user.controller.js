@@ -31,7 +31,7 @@ userController.logIn = async (req, res) => {
         const match = await user.matchPassword(password);
         if (match) {
             req.session.userId = user.id;
-            res.status(200).send({ ok: true, user: user.id , role: user.role});
+            res.status(200).send({ ok: true, user: user.id, role: user.role });
         } else {
             res.status(400).send({ ok: false, message: 'Incorrect combination of Email or Password.' });
         }
@@ -48,10 +48,20 @@ userController.logIn = async (req, res) => {
 *
 */
 userController.addFriend = async (req, res) => {
-    // Id del usuario que realiza la petición de amistad.
     const { userId } = req.cookies;
-    // Nombre del usuario que recibe la petición de amistad.
     const { friend } = req.body;
+
+    const friendUser = await User.findOne({ user: friend });
+    if (!friendUser) {
+        return res.status(404).send({ ok: false, message: 'User not found' });
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).send({ ok: false, message: 'User not found' });
+    }
+    friendUser.mailbox.push({ sender: user.user });
+    await friendUser.save();
+    return res.status(200).send({ ok: true, message: 'Friend request sent' });
 };
 
 /* TODO: Cristian 
@@ -60,8 +70,13 @@ userController.addFriend = async (req, res) => {
 *
 */
 userController.getAllFriends = async (req, res) => {
-    // El usuario
     const { userId } = req.cookies;
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).send({ ok: false, message: 'User not found' });
+    }
+    const friends = user.friends;
+    return res.status(200).send({ ok: true, friends });
 };
 
 /* TODO: Cristian 
@@ -72,10 +87,25 @@ userController.getAllFriends = async (req, res) => {
 *
 */
 userController.manageFriendRequest = async (req, res) => {
-    // Id del usuario del que hay que devolver el mailbox.
     const { userId } = req.cookies;
-    // Id de la petición de amistad y flag.
     const { requestId, flag } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).send({ ok: false, message: 'User not found' });
+    }
+    const requestIndex = user.mailbox.findIndex(request => request._id.toString() === requestId);
+    if (requestIndex === -1) {
+        return res.status(404).send({ ok: false, message: 'Friend request not found' });
+    }
+    if (flag === 1) {
+        user.friends.push({friendId: user.mailbox[requestIndex]._id, title: user.mailbox[requestIndex].sender  });
+        user.mailbox.splice(requestIndex, 1);
+        await user.save();
+        return res.status(200).send({ ok: true, message: 'Request accepted' });
+    }
+    user.mailbox.splice(requestIndex, 1);
+    await user.save(); 
+    return res.status(200).send({ ok: true, message: 'Request rejected' });
 };
 
 /* TODO: Cristian 
@@ -84,8 +114,13 @@ userController.manageFriendRequest = async (req, res) => {
 *  
 */
 userController.getAllFriendRequests = async (req, res) => {
-    // Id del usuario del que hay que devolver el mailbox.
     const { userId } = req.cookies;
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).send({ ok: false, message: 'User not found' });
+    }
+    const mailbox = user.mailbox;
+    return res.status(200).send({ ok: true, mailbox });
 };
 
 export default userController;

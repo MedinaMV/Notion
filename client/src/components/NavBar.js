@@ -25,7 +25,7 @@ export default function NavBar() {
                             <Link class="nav-link" to="/collection">Collections</Link>
                         </li>
                         <li class="nav-item">
-                            <Link class="nav-link" to="/">Friends</Link>
+                            <Link class="nav-link" to="/friends">Friends</Link>
                         </li>
                     </ul>
                 </div>

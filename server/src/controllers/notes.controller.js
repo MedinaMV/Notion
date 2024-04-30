@@ -274,22 +274,38 @@ function searchList(note, id) {
 *  
 */
 noteController.shareNote = async (req, res) => {
-    // Id de la nota a compartir e Id del usuario al que se le desea compartir la nota.
     const { noteId, userId } = req.body;
 
+    const note = await Note.findById(noteId);
+    if (!note) {
+        return res.status(404).send({ ok: false, message: 'Note not found' });
+    }
 
+    if (!note.shared.includes(userId)) {
+        note.shared.push({ user: userId });
+        await note.save();
+    }
+
+    return res.status(200).send({ ok: true, message: 'Note shared successfully' });
 };
+
+
 
 /* TODO: Cristian
 *
 *  Devolver todas las notas que hayan sido compartidas con el usuario indicado
 *  
 */
-noteController.getSharedNotes= async (req, res) => {
-    // Id del usuario que desea ver las notas que le ha compartido su amigo.
+noteController.getSharedNotes = async (req, res) => {
     const { userId } = req.cookies;
-    // Nombre del amigo que ha compartido las notas.
     const { friend } = req.body;
+
+    const sharedNotes = await Note.find({ 'shared.user': userId, 'user': friend });
+    if (!sharedNotes || sharedNotes.length === 0) {
+        return res.status(404).send({ok: false, message: 'No shared Notes found'});
+    }
+
+    return res.status(200).send({ok: true, notes: sharedNotes});
 
 
 };

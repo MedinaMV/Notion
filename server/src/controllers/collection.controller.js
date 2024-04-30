@@ -84,10 +84,19 @@ collectionController.getNotesByCollection = async (req, res) => {
 *  
 */
 collectionController.shareCollection = async (req, res) => {
-    // Id de la colección a compartir e Id del usuario al que se le desea compartir la colección.
-    const { noteId, userId } = req.body;
+    const { collectionId, userId } = req.body;
 
+    const collection = await Collection.findById(collectionId);
+    if (!collection) {
+        return res.status(404).send({ ok: false, message: 'Collection not found' });
+    }
 
+    if (!collection.shared.includes(userId)) {
+        collection.shared.push({ user: userId });        
+        await collection.save();
+    }
+
+    return res.status(200).send({ ok: true, message: 'Collection shared successfully' });
 };
 
 /* TODO: Cristian
@@ -96,12 +105,15 @@ collectionController.shareCollection = async (req, res) => {
 *  
 */
 collectionController.getSharedCollections = async (req, res) => {
-    // Id del usuario que desea ver las colecciones que le ha compartido su amigo.
     const { userId } = req.cookies;
-    // Nombre del amigo que ha compartido las colecciones.
     const { friend } = req.body;
 
+    const sharedCollections = await Collection.find({ 'shared.user': userId, 'user': friend });
+    if (!sharedCollections || sharedCollections.length === 0) {
+        return res.status(404).send({ok: false, message: 'No shared collections found'});
+    }
 
+    return res.status(200).send({ok: true, collections: sharedCollections});
 };
 
 

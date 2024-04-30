@@ -13,6 +13,7 @@ import AdminPanel from './components/pages/Admin';
 import Cookies from 'js-cookie';
 import AdminNavBar from './components/AdminNavBar';
 import AdminUserSettings from './components/pages/AdminUserSettings';
+import Friends from './components/pages/Friends';
 
 export default function App() {
   const [isLoggedIn, setLoggedIn] = React.useState(Cookies.get('userId') ? true : false);
@@ -36,6 +37,7 @@ export default function App() {
           <Route path='/collection' element={<Collection />} />
           <Route path='/admin' element={<AdminPanel />} />
           <Route path='/admin/userSettings' element={<AdminUserSettings />} />
+          <Route path='/friends' element={<Friends />}></Route>
         </Route>
         <Route path='/login' element={<Login setLoggedIn={setLoggedIn} setAdmin={setAdmin} />} />
         <Route path='/register' element={<Register />} />
