@@ -81,10 +81,19 @@ userController.removeFriend = async (req, res) => {
     }
 
     user.friends.splice(friendIndex, 1);
-    await user.save();
-    return res.status(200).send({ ok: true, message: 'Friend removed' });
-};
 
+    const sharedNotes = await Note.find({ 'shared.user': userId });
+    sharedNotes.forEach(note => {
+        const sharedUserIndex = note.shared.findIndex(u => u.user === friend);
+        if (sharedUserIndex !== -1) {
+            note.shared.splice(sharedUserIndex, 1);
+            note.save();
+        }
+    });
+
+    await user.save();
+    return res.status(200).send({ ok: true, message: 'Friend removed and access to shared notes revoked' });
+};
 /* TODO: Cristian 
 *
 * Obtener todos los amigos de un usuario.
