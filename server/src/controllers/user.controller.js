@@ -65,6 +65,26 @@ userController.addFriend = async (req, res) => {
     return res.status(200).send({ ok: true, message: 'Friend request sent' });
 };
 
+
+userController.removeFriend = async (req, res) => {
+    const { userId } = req.cookies;
+    const { friend } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).send({ ok: false, message: 'User not found' });
+    }
+
+    const friendIndex = user.friends.findIndex(f => f.name === friend);
+    if (friendIndex === -1) {
+        return res.status(404).send({ ok: false, message: 'Friend not found' });
+    }
+
+    user.friends.splice(friendIndex, 1);
+    await user.save();
+    return res.status(200).send({ ok: true, message: 'Friend removed' });
+};
+
 /* TODO: Cristian 
 *
 * Obtener todos los amigos de un usuario.
