@@ -65,7 +65,6 @@ userController.addFriend = async (req, res) => {
     friendUser.mailbox.push({ sender: user.user });
     user.mailbox.push({ sender: friendUser.user });
 
-    // Add each other to friends list
     user.friends.push({ name: friendUser.user, id: friendUser._id });
     friendUser.friends.push({ name: user.user, id: user._id });
 
@@ -92,25 +91,21 @@ userController.removeFriend = async (req, res) => {
 
     user.friends.splice(friendIndex, 1);
 
-    // Remove user from friend's friends list
     const userIndexInFriend = friendUser.friends.findIndex(f => f.name === user.user);
     if (userIndexInFriend !== -1) {
         friendUser.friends.splice(userIndexInFriend, 1);
     }
 
-    // Remove user from friend's mailbox
     const userIndexInMailbox = friendUser.mailbox.findIndex(m => m.sender === user.user);
     if (userIndexInMailbox !== -1) {
         friendUser.mailbox.splice(userIndexInMailbox, 1);
     }
 
-    // Remove friend from user's mailbox
     const friendIndexInMailbox = user.mailbox.findIndex(m => m.sender === friend);
     if (friendIndexInMailbox !== -1) {
         user.mailbox.splice(friendIndexInMailbox, 1);
     }
 
-    // Find and update shared notes
     const sharedNotes = await Note.find({ 'shared.user': userId });
     sharedNotes.forEach(note => {
         const sharedUserIndex = note.shared.findIndex(u => u.user === friend);
@@ -120,7 +115,6 @@ userController.removeFriend = async (req, res) => {
         }
     });
 
-    // Find and update shared collections
     const sharedCollections = await Collection.find({ 'shared.user': userId });
     sharedCollections.forEach(collection => {
         const sharedUserIndex = collection.shared.findIndex(u => u.user === friend);
