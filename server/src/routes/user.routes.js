@@ -16,4 +16,6 @@ router.put('/manageFriendRequest', Authentication, userController.manageFriendRe
 
 router.get('/getAllFriendRequests', Authentication, userController.getAllFriendRequests);
 
+router.delete('/removeFriend', Authentication, userController.removeFriend);
+
 export {router};

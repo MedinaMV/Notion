@@ -3,12 +3,21 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import GroupIcon from '@mui/icons-material/Group';
 import NoteIcon from '@mui/icons-material/Note';
 import CollectionsIcon from '@mui/icons-material/Collections';
+import URL from "../api/api-calls";
 
 export default function FriendRow({ title, handleDelete, userId }) {
     const avatar = <GroupIcon />;
 
-    const handleNotes = () => {
-        alert('Visitar notas de amigo');
+    const handleNotes = async () => {
+        const request = await fetch(URL + `/notes/getSharedNotes`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+        });
+        const response = await request.json();
+        console.log(response);
     }
 
     const handleCollections = () => {
@@ -34,7 +43,7 @@ export default function FriendRow({ title, handleDelete, userId }) {
                         </IconButton>
                     </Tooltip>
                     <Tooltip title='Delete friend'>
-                        <IconButton onClick={() => handleDelete(userId)}>
+                        <IconButton onClick={() => handleDelete(title)}>
                             <DeleteIcon />
                         </IconButton>
                     </Tooltip>

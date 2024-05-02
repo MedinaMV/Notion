@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Badge, IconButton, TextField, Tooltip, Snackbar, Dialog, DialogTitle, List, ListItem, ListItemText } from '@mui/material';
+import { Grid, Badge, IconButton, TextField, Tooltip, Snackbar, Dialog, DialogTitle, List, ListItem } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import url from '../../api/api-calls.js';
 import FriendRow from '../FriendRow.js';
@@ -38,8 +38,19 @@ export default function Friends() {
         handleMethodCall();
     };
 
-    const deleteFriend = () => {
-        alert('Borrado de amigo');
+    const deleteFriend = async (friend) => {
+        if (window.confirm('Are you sure about removing this friend?')) {
+            const request = await fetch(url + '/user/removeFriend', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', },
+                body: JSON.stringify({ friend: friend }),
+                credentials: 'include',
+            });
+            const response = await request.json();
+            setMessage(response.message);
+            setOpen(true);
+            handleMethodCall();
+        }
     }
 
     const sendFriendRequest = async () => {

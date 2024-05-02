@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Note from '../models/Note.js';
 const userController = {};
 
 userController.register = async (req, res) => {
@@ -38,6 +39,36 @@ userController.logIn = async (req, res) => {
     } else {
         res.status(400).send({ ok: false, message: 'User not found.' });
     }
+};
+
+userController.removeFriend = async (req, res) => {
+    const { userId } = req.cookies;
+    const { friend } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).send({ ok: false, message: 'User not found' });
+    }
+
+    const friendIndex = user.friends.findIndex(f => f.title === friend);
+    if (friendIndex === -1) {
+        return res.status(404).send({ ok: false, message: 'Friend not found' });
+    }
+
+    user.friends.splice(friendIndex, 1);
+
+    const userFriend = await User.findOne({user: friend});
+    const sharedNotes = await Note.find({ 'shared.user': userFriend.id });
+    sharedNotes.forEach(note => {
+        const sharedUserIndex = note.shared.findIndex(u => u.user === userFriend.id);
+        if (sharedUserIndex !== -1) {
+            note.shared.splice(sharedUserIndex, 1);
+            note.save();
+        }
+    });
+
+    await user.save();
+    return res.status(200).send({ ok: true, message: 'Friend removed' });
 };
 
 /* TODO: Cristian 
@@ -97,8 +128,10 @@ userController.manageFriendRequest = async (req, res) => {
     if (requestIndex === -1) {
         return res.status(404).send({ ok: false, message: 'Friend request not found' });
     }
+    const friendName = user.mailbox[requestIndex].sender;
+    const friend = await User.findOne({user: friendName});
     if (flag === 1) {
-        user.friends.push({friendId: user.mailbox[requestIndex]._id, title: user.mailbox[requestIndex].sender  });
+        user.friends.push({friendId: friend.id, title: friendName });
         user.mailbox.splice(requestIndex, 1);
         await user.save();
         return res.status(200).send({ ok: true, message: 'Request accepted' });

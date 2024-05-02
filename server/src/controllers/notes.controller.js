@@ -290,7 +290,6 @@ noteController.shareNote = async (req, res) => {
 };
 
 
-
 /* TODO: Cristian
 *
 *  Devolver todas las notas que hayan sido compartidas con el usuario indicado
@@ -298,16 +297,13 @@ noteController.shareNote = async (req, res) => {
 */
 noteController.getSharedNotes = async (req, res) => {
     const { userId } = req.cookies;
-    const { friend } = req.body;
 
-    const sharedNotes = await Note.find({ 'shared.user': userId, 'user': friend });
+    const sharedNotes = await Note.find({ 'shared.user': userId });
     if (!sharedNotes || sharedNotes.length === 0) {
         return res.status(404).send({ok: false, message: 'No shared Notes found'});
     }
 
     return res.status(200).send({ok: true, notes: sharedNotes});
-
-
 };
 
 export default noteController;
