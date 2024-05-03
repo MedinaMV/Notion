@@ -1,4 +1,4 @@
 fileignoreconfig:
-- filename: client/src/components/pages/Admin.js
-  checksum: 349453dbc0cc21367af062e87d9c07ac4b2ccde69befd026f8366c184ed20ae5
+- filename: client/src/components/NoteRow.js
+  checksum: 67be2532f05830dbe55da635e195a78fe736d98734775b7ab7950504123f279b
 version: ""

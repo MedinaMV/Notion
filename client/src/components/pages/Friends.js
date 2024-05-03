@@ -74,6 +74,7 @@ export default function Friends() {
             credentials: 'include',
         });
         const response = await request.json();
+        console.log(response.friends);
         setFriends(response.friends ?? []);
         const request1 = await fetch(url + `/user/getAllFriendRequests`, {
             method: 'GET',
@@ -133,13 +134,12 @@ export default function Friends() {
                     <FriendRow
                         key={friend._id}
                         title={friend.title}
-                        userId={friend._id}
+                        userId={friend.friendId}
                         handleDelete={deleteFriend}
                     />
                 ))}
             </Grid>
         </Grid>
-
     );
 }
 

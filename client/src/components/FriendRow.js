@@ -3,25 +3,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import GroupIcon from '@mui/icons-material/Group';
 import NoteIcon from '@mui/icons-material/Note';
 import CollectionsIcon from '@mui/icons-material/Collections';
-import URL from "../api/api-calls";
+import { useNavigate } from "react-router-dom";
 
 export default function FriendRow({ title, handleDelete, userId }) {
     const avatar = <GroupIcon />;
+    const navigate = useNavigate();
 
-    const handleNotes = async () => {
-        const request = await fetch(URL + `/notes/getSharedNotes`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-        });
-        const response = await request.json();
-        console.log(response);
+    const handleNotes = () => {
+        navigate('/friends/sharedNotes', {state: {friend: userId}});
     }
 
     const handleCollections = () => {
-        alert('Visitar colecciones de amigo');
+        navigate('/friends/sharedCollections');
     }
 
     return (

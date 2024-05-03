@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import Note from '../models/Note.js';
+import Collection from '../models/Collection.js';
 const userController = {};
 
 userController.register = async (req, res) => {
@@ -133,7 +134,9 @@ userController.manageFriendRequest = async (req, res) => {
     if (flag === 1) {
         user.friends.push({friendId: friend.id, title: friendName });
         user.mailbox.splice(requestIndex, 1);
+        friend.friends.push({friendId: user.id, title: user.user })
         await user.save();
+        await friend.save();
         return res.status(200).send({ ok: true, message: 'Request accepted' });
     }
     user.mailbox.splice(requestIndex, 1);

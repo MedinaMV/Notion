@@ -28,6 +28,6 @@ router.post('/:id/moveNoteElements', Authentication, noteController.moveNoteElem
 
 router.put('/shareNote', Authentication, noteController.shareNote);
 
-router.get('/getSharedNotes', Authentication, noteController.getSharedNotes);
+router.get('/getSharedNotes/:friendId', Authentication, noteController.getSharedNotes);
 
 export { router };
