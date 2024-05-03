@@ -16,6 +16,6 @@ router.get('/:id/getNotesByCollection', Authentication, collectionController.get
 
 router.put('/shareCollection', Authentication, collectionController.shareCollection);
 
-router.get('/getSharedCollections', Authentication, collectionController.getSharedCollections);
+router.get('/getSharedCollections/:friendId', Authentication, collectionController.getSharedCollections);
 
 export { router };

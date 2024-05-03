@@ -1,6 +1,7 @@
 import { Grid, Paper, Button, Dialog, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import React from 'react';
 import url from '../../api/api-calls.js';
+import URL from '../../api/api-calls.js';
 
 export default function Collection() {
     const [collections, setCollections] = React.useState([]);
@@ -72,7 +73,7 @@ function CollectionElement({ collection, deleteCollection }) {
 
     React.useEffect(() => {
         (async () => {
-            const request = await fetch(url + `/notes/getAllNotes`, {
+            const request = await fetch(url + `/user/getAllFriends`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,7 +81,7 @@ function CollectionElement({ collection, deleteCollection }) {
                 credentials: 'include',
             });
             const response = await request.json();
-            setNotes(response.notes ?? [])
+            setNotes(response.friends ?? [])
         })();
     }, []);
 
@@ -125,8 +126,8 @@ function CollectionElement({ collection, deleteCollection }) {
                         <h2>{collection.name}</h2>
                     </Grid>
                     <Grid style={{ marginTop: '100px' }}>
+                        <Button onClick={handleClickOpen} style={{ backgroundColor: '#008fe6', margin: "5px auto" }} variant="contained" type='submit' fullWidth> Share </Button>
                         <Button onClick={handleClickOpenViewNotes} style={{ backgroundColor: '#0005d7', margin: "5px auto" }} variant="contained" type='submit' fullWidth>View Notes</Button>
-                        <Button onClick={handleClickOpen} style={{ backgroundColor: '#008fe6', margin: "5px auto" }} variant="contained" type='submit' fullWidth>Add Note</Button>
                         <Button onClick={deleteCollec} style={{ backgroundColor: '#ff0018', margin: "5px auto" }} variant="contained" type='submit' fullWidth>Remove Collection</Button>
                     </Grid>
                 </Paper>
@@ -159,9 +160,11 @@ function SimpleDialog(props) {
     };
 
     const handleListItemClick = async (value) => {
-        const request = await fetch(url + `/collection/${collectionId}/addNote/${value._id}`, {
-            method: 'POST',
-            credentials: 'include'
+        const request = await fetch(URL + '/collection/shareCollection', {
+            method: 'PUT',
+            headers: { 'Content-Type' : 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ collectionId: collectionId , userName: value })
         });
         await request.json();
         onClose(value);
@@ -173,13 +176,13 @@ function SimpleDialog(props) {
 
     return (
         <Dialog onClose={handleClose} open={open}>
-            <DialogTitle> Choose a note </DialogTitle>
+            <DialogTitle> Choose one </DialogTitle>
             <List sx={{ pt: 0 }}>
                 {notes.map((note) => (
                     (show ?
                         (
                             <ListItem disableGutters key={note._id}>
-                                <ListItemButton onClick={() => handleListItemClick(note)}>
+                                <ListItemButton onClick={() => handleListItemClick(note.title)}>
                                     <ListItemText primary={note.title} />
                                 </ListItemButton>
                             </ListItem>

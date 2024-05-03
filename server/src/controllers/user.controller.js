@@ -47,8 +47,9 @@ userController.removeFriend = async (req, res) => {
     const { friend } = req.body;
 
     const user = await User.findById(userId);
-    if (!user) {
-        return res.status(404).send({ ok: false, message: 'User not found' });
+    const userFriend = await User.findOne({user: friend});
+    if (!user || !userFriend) {
+        return res.status(404).send({ ok: false, message: 'User or friend not found' });
     }
 
     const friendIndex = user.friends.findIndex(f => f.title === friend);
@@ -56,19 +57,34 @@ userController.removeFriend = async (req, res) => {
         return res.status(404).send({ ok: false, message: 'Friend not found' });
     }
 
-    user.friends.splice(friendIndex, 1);
+    const userIndex = userFriend.friends.findIndex(f => f.title === user.user);
+    if (userIndex === -1) {
+        return res.status(404).send({ ok: false, message: 'User not found' });
+    }
 
-    const userFriend = await User.findOne({user: friend});
+    user.friends.splice(friendIndex, 1);
+    userFriend.friends.splice(userIndex, 1);
+    
     const sharedNotes = await Note.find({ 'shared.user': userFriend.id });
-    sharedNotes.forEach(note => {
-        const sharedUserIndex = note.shared.findIndex(u => u.user === userFriend.id);
-        if (sharedUserIndex !== -1) {
-            note.shared.splice(sharedUserIndex, 1);
-            note.save();
+    sharedNotes.forEach(async note => {
+        if(note.user === userId) {
+            const friendIndex = note.shared.findIndex(f => f.user === userFriend.id);
+            note.shared.splice(friendIndex, 1);
+            await note.save();
+        }
+    });
+
+    const sharedCollections = await Collection.find({ 'shared.user': userFriend.id });
+    sharedCollections.forEach(async collection => {
+        if(collection.user === userId) {
+            const friendIndex = collection.shared.findIndex(f => f.user === userFriend.id);
+            collection.shared.splice(friendIndex, 1);
+            await collection.save();
         }
     });
 
     await user.save();
+    await userFriend.save();
     return res.status(200).send({ ok: true, message: 'Friend removed' });
 };
 
@@ -85,7 +101,7 @@ userController.addFriend = async (req, res) => {
 
     const friendUser = await User.findOne({ user: friend });
     if (!friendUser) {
-        return res.status(404).send({ ok: false, message: 'User not found' });
+        return res.status(404).send({ ok: false, message: 'Friend not found' });
     }
     const user = await User.findById(userId);
     if (!user) {

@@ -14,7 +14,7 @@ export default function FriendRow({ title, handleDelete, userId }) {
     }
 
     const handleCollections = () => {
-        navigate('/friends/sharedCollections');
+        navigate('/friends/sharedCollections', {state: {friend: userId}});
     }
 
     return (

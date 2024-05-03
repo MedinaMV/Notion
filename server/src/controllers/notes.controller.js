@@ -280,12 +280,13 @@ noteController.shareNote = async (req, res) => {
     if (!note) {
         return res.status(404).send({ ok: false, message: 'Note not found' });
     }
-
-    if (!note.shared.includes(userId)) {
-        note.shared.push({ user: userId });
-        await note.save();
+    
+    if (note.shared.includes(userId)) {
+        return res.status(403).send({ ok: false, message: 'Note already shared' });
     }
 
+    note.shared.push({ user: userId });
+    await note.save();
     return res.status(200).send({ ok: true, message: 'Note shared successfully' });
 };
 
@@ -298,7 +299,6 @@ noteController.shareNote = async (req, res) => {
 noteController.getSharedNotes = async (req, res) => {
     const { userId } = req.cookies;
     const { friendId } = req.params;
-    console.log(friendId);
 
     const sharedNotes = await Note.find({ 'shared.user': userId, 'user': friendId });
     if (!sharedNotes || sharedNotes.length === 0) {

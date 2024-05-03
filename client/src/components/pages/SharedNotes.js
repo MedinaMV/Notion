@@ -18,7 +18,6 @@ export default function SharedNotes() {
                 credentials: 'include',
             });
             const response = await request.json();
-            console.log(response);
             setNotes(response.notes ?? []);
         })();
     }, []);

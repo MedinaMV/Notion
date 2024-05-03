@@ -1,5 +1,6 @@
 import Collection from "../models/Collection.js";
 import Note from "../models/Note.js";
+import User from "../models/User.js";
 
 const collectionController = {};
 
@@ -57,11 +58,6 @@ collectionController.collectionAddNote = async (req, res) => {
     return res.status(403).send({ok: false, message: 'Forbidden!'});
 };
 
-collectionController.collectionDeleteNote = async (req, res) => {
-
-};
-
-
 collectionController.getNotesByCollection = async (req, res) => {
     const { id } = req.params;
 
@@ -84,17 +80,24 @@ collectionController.getNotesByCollection = async (req, res) => {
 *  
 */
 collectionController.shareCollection = async (req, res) => {
-    const { collectionId, userId } = req.body;
+    const { collectionId, userName } = req.body;
 
     const collection = await Collection.findById(collectionId);
     if (!collection) {
         return res.status(404).send({ ok: false, message: 'Collection not found' });
     }
 
-    if (!collection.shared.includes(userId)) {
-        collection.shared.push({ user: userId });        
-        await collection.save();
+    const user = await User.findOne({user: userName});
+    if(!user) {
+        return res.status(404).send({ ok: false, message: 'User not found' });
     }
+
+    if (collection.shared.includes(user.id)) {
+        return res.status(403).send({ ok: false, message: 'Collection already shared' });
+    }
+
+    collection.shared.push({ user: user.id });        
+    await collection.save();
 
     return res.status(200).send({ ok: true, message: 'Collection shared successfully' });
 };
@@ -106,9 +109,9 @@ collectionController.shareCollection = async (req, res) => {
 */
 collectionController.getSharedCollections = async (req, res) => {
     const { userId } = req.cookies;
-    const { friend } = req.body;
+    const { friendId } = req.params;
 
-    const sharedCollections = await Collection.find({ 'shared.user': userId, 'user': friend });
+    const sharedCollections = await Collection.find({ 'shared.user': friendId, 'user': userId });
     if (!sharedCollections || sharedCollections.length === 0) {
         return res.status(404).send({ok: false, message: 'No shared collections found'});
     }

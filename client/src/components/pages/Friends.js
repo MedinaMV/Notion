@@ -74,7 +74,6 @@ export default function Friends() {
             credentials: 'include',
         });
         const response = await request.json();
-        console.log(response.friends);
         setFriends(response.friends ?? []);
         const request1 = await fetch(url + `/user/getAllFriendRequests`, {
             method: 'GET',
