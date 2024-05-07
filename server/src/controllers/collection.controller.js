@@ -111,7 +111,7 @@ collectionController.getSharedCollections = async (req, res) => {
     const { userId } = req.cookies;
     const { friendId } = req.params;
 
-    const sharedCollections = await Collection.find({ 'shared.user': friendId, 'user': userId });
+    const sharedCollections = await Collection.find({ 'shared.user': userId, 'user': friendId });
     if (!sharedCollections || sharedCollections.length === 0) {
         return res.status(404).send({ok: false, message: 'No shared collections found'});
     }

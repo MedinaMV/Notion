@@ -12,10 +12,10 @@ export default function UserRow({ type, title, showEdit, handleEdit, handleDelet
         avatar = <PersonIcon />;
     }else if(type === 'note'){
         avatar = <DescriptionIcon />
-    }else if(type === 'friend') {
-        avatar = <GroupIcon />
-    }else {
+    }else if(type === 'collection') {
         avatar = <CollectionsIcon />
+    }else {
+        avatar = <GroupIcon />
     }
 
     return (

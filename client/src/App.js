@@ -16,6 +16,7 @@ import AdminUserSettings from './components/pages/AdminUserSettings';
 import Friends from './components/pages/Friends';
 import SharedNotes from './components/pages/SharedNotes';
 import SharedCollections from './components/pages/SharedCollections'
+import FriendPage from './components/pages/FriendPage';
 
 export default function App() {
   const [isLoggedIn, setLoggedIn] = React.useState(Cookies.get('userId') ? true : false);
@@ -42,6 +43,7 @@ export default function App() {
           <Route path='/friends' element={<Friends />}></Route>
           <Route path='/friends/sharedNotes' element={<SharedNotes />}></Route>
           <Route path='/friends/sharedCollections' element={<SharedCollections />}></Route>
+          <Route path='/friends/editSharedNotes' element={<FriendPage />}></Route>
         </Route>
         <Route path='/login' element={<Login setLoggedIn={setLoggedIn} setAdmin={setAdmin} />} />
         <Route path='/register' element={<Register />} />

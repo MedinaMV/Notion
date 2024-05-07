@@ -1,14 +1,14 @@
 import { Grid, Paper, Button, Dialog, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import React from 'react';
-import url from '../../api/api-calls.js';
 import URL from '../../api/api-calls.js';
+import { useNavigate } from 'react-router-dom';
 
 export default function Collection() {
     const [collections, setCollections] = React.useState([]);
 
     React.useEffect(() => {
         (async () => {
-            const request = await fetch(url + `/collection/getAllCollections`, {
+            const request = await fetch(URL + `/collection/getAllCollections`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -23,7 +23,7 @@ export default function Collection() {
     async function createCollection() {
         let input = prompt('Set a name for your new collection');
         if (input) {
-            const request = await fetch(url + '/collection/createCollection', {
+            const request = await fetch(URL + '/collection/createCollection', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: input }),
@@ -36,7 +36,7 @@ export default function Collection() {
     }
 
     async function deleteCollection(element) {
-        const request = await fetch(url + `/collection/${element._id}/deleteCollection`, {
+        const request = await fetch(URL + `/collection/${element._id}/deleteCollection`, {
             method: 'DELETE',
             credentials: 'include',
         });
@@ -70,10 +70,11 @@ function CollectionElement({ collection, deleteCollection }) {
     const [collectionNotes, setCollectionNotes] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const [open1, setOpen1] = React.useState(false);
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         (async () => {
-            const request = await fetch(url + `/user/getAllFriends`, {
+            const request = await fetch(URL + `/user/getAllFriends`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ function CollectionElement({ collection, deleteCollection }) {
     }
 
     const handleClickOpenViewNotes = async () => {
-        const request = await fetch(url + `/collection/${collection._id}/getNotesByCollection`, {
+        const request = await fetch(URL + `/collection/${collection._id}/getNotesByCollection`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -114,8 +115,7 @@ function CollectionElement({ collection, deleteCollection }) {
             credentials: 'include',
         });
         const response = await request.json();
-        setCollectionNotes(response.notes);
-        setOpen1(true);
+        navigate('/friends/editSharedNotes', { state: { rows: response.notes } });
     };
 
     return (
@@ -162,9 +162,9 @@ function SimpleDialog(props) {
     const handleListItemClick = async (value) => {
         const request = await fetch(URL + '/collection/shareCollection', {
             method: 'PUT',
-            headers: { 'Content-Type' : 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ collectionId: collectionId , userName: value })
+            body: JSON.stringify({ collectionId: collectionId, userName: value })
         });
         await request.json();
         onClose(value);

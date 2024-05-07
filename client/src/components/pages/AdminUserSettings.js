@@ -50,6 +50,7 @@ export default function AdminUserSettings() {
             credentials: 'include',
         });
         const response = await request.json();
+        console.log(response.collections);
         setElements(response.collections ?? []);
         setElementType('collection');
     };

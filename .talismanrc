@@ -1,4 +1,6 @@
 fileignoreconfig:
-- filename: client/src/components/NoteRow.js
-  checksum: 67be2532f05830dbe55da635e195a78fe736d98734775b7ab7950504123f279b
+- filename: client/src/components/pages/SharedCollections.js
+  checksum: f729433ad9e99db899d88bb85c7da5cf93529ef8abc9eac257bb965414aaef75
+- filename: client/src/components/pages/SharedNotes.js
+  checksum: 6f419542d4c79170c7b3f2433a5821faaa1a195765e406fb9d3335df817cde2a
 version: ""

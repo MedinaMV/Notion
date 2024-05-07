@@ -4,7 +4,7 @@ import SharedNoteComponent from "../SharedNoteComponent";
 import { useLocation } from 'react-router-dom';
 import URL from '../../api/api-calls';
 
-export default function SharedNotes() {
+export default function SharedCollections() {
     const [collections, setCollections] = React.useState([]);
     const location = useLocation();
 
@@ -18,6 +18,7 @@ export default function SharedNotes() {
                 credentials: 'include',
             });
             const response = await request.json();
+            console.log(response.collections);
             setCollections(response.collections ?? []);
         })();
     }, []);
@@ -31,6 +32,7 @@ export default function SharedNotes() {
                         key={collection._id}
                         title={collection.name}
                         noteId={collection._id}
+                        type={"Collection"}
                     />
                 ))}
             </Grid>

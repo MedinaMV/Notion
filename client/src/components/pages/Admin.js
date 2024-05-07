@@ -55,7 +55,7 @@ export default function AdminPanel() {
                         key={user._id}
                         title={user.user}
                         userId={user._id}
-                        type={'user'}
+                        type={"user"}
                         showEdit={true}
                         handleEdit={handleEditing}
                         handleDelete={deleteUser}

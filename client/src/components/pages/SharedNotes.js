@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid } from "@mui/material";
 import SharedNoteComponent from "../SharedNoteComponent";
 import URL from '../../api/api-calls';
-import {useLocation} from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 export default function SharedNotes() {
     const [notes, setNotes] = React.useState([]);
@@ -32,6 +32,7 @@ export default function SharedNotes() {
                         key={note._id}
                         title={note.title}
                         noteId={note._id}
+                        type={"Note"}
                     />
                 ))}
             </Grid>
