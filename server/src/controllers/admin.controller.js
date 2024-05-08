@@ -18,6 +18,10 @@ adminController.removeUser = async (req, res) => {
         for (let i = 0; i < notes.length; i++) {
             await Note.findByIdAndDelete(notes[i].id);
         }
+        const collections = await Collection.find({ user: userId });
+        for(let i = 0; i < collections.length; i++){
+            await Collection.findByIdAndDelete(collections[i].id);
+        }
         await User.findByIdAndDelete(userId);
         return res.status(200).send({ ok: true });
     } catch (err) {
@@ -140,7 +144,7 @@ adminController.removeCollection = async (req, res) => {
             return res.status(400).send({ ok: false, message: 'Bad Request' });
         }
         await Collection.findByIdAndDelete(id);
-        return res.status(202).send({ ok: true })
+        return res.status(202).send({ ok: true });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
