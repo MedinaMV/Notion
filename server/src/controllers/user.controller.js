@@ -101,11 +101,27 @@ userController.addFriend = async (req, res) => {
 
     const friendUser = await User.findOne({ user: friend });
     if (!friendUser) {
-        return res.status(404).send({ ok: false, message: 'Friend not found' });
+        return res.status(404).send({ ok: false, message: 'User not found' });
     }
     const user = await User.findById(userId);
     if (!user) {
-        return res.status(404).send({ ok: false, message: 'User not found' });
+        return res.status(404).send({ ok: false, message: 'Unexpected error occured' });
+    }
+
+    let alreadySended = false;
+    friendUser.mailbox.map((mail) => {
+        if(mail.sender === user.user) {
+            alreadySended = true;
+        }
+    });
+
+    user.friends.map((friend) => {
+        if(friend.title === friendUser.user) {
+            alreadySended = true;
+        }
+    });
+    if(alreadySended) {
+        return res.status(403).send({ ok: false, message: 'You cannot send more friend request to this user' });
     }
     friendUser.mailbox.push({ sender: user.user });
     await friendUser.save();

@@ -280,11 +280,16 @@ noteController.shareNote = async (req, res) => {
     if (!note) {
         return res.status(404).send({ ok: false, message: 'Note not found' });
     }
-    
-    if (note.shared.includes(userId)) {
+
+    let alreadyShared = false;
+    note.shared.map(async (note) => {
+        if (note.user === userId) {
+            alreadyShared = true;
+        }
+    });
+    if (alreadyShared) {
         return res.status(403).send({ ok: false, message: 'Note already shared' });
     }
-
     note.shared.push({ user: userId });
     await note.save();
     return res.status(200).send({ ok: true, message: 'Note shared successfully' });

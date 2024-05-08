@@ -1,10 +1,12 @@
-import { Grid, Paper, Button, Dialog, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
+import { Grid, Snackbar, Paper, Button, Dialog, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import React from 'react';
 import URL from '../../api/api-calls.js';
 import { useNavigate } from 'react-router-dom';
 
 export default function Collection() {
     const [collections, setCollections] = React.useState([]);
+    const [open, setOpen] = React.useState(false);
+    const [message, setMessage] = React.useState('');
 
     React.useEffect(() => {
         (async () => {
@@ -44,6 +46,15 @@ export default function Collection() {
         setCollections(collections.filter(elemento => elemento !== element));
     }
 
+    const handleMessage = (message) => {
+        setMessage(message);
+        setOpen(true);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+    }
+
     return (
         <div style={{ display: 'inline', flexDirection: 'row', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -52,6 +63,7 @@ export default function Collection() {
                         key={element._id}
                         collection={element}
                         deleteCollection={deleteCollection}
+                        handleMessage={handleMessage}
                     />
                 ))}
                 {
@@ -60,12 +72,18 @@ export default function Collection() {
                     </div>
                 }
             </div>
+            <Snackbar
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                open={open}
+                autoHideDuration={3500}
+                onClose={handleClose}
+                message={message}
+            />
         </div>
-
     );
 }
 
-function CollectionElement({ collection, deleteCollection }) {
+function CollectionElement({ collection, deleteCollection, handleMessage }) {
     const [notes, setNotes] = React.useState([]);
     const [collectionNotes, setCollectionNotes] = React.useState([]);
     const [open, setOpen] = React.useState(false);
@@ -139,6 +157,7 @@ function CollectionElement({ collection, deleteCollection }) {
                 notes={notes}
                 collectionId={collection._id}
                 show={true}
+                handleMessage={handleMessage}
             />
             <SimpleDialog
                 selectedValue={selectedValue}
@@ -147,13 +166,14 @@ function CollectionElement({ collection, deleteCollection }) {
                 notes={collectionNotes}
                 collectionId={collection._id}
                 show={false}
+                handleMessage={handleMessage}
             />
         </>
     );
 }
 
 function SimpleDialog(props) {
-    const { onClose, selectedValue, open, notes, collectionId, show } = props;
+    const { onClose, selectedValue, open, notes, collectionId, show, handleMessage } = props;
 
     const handleClose = () => {
         onClose(selectedValue);
@@ -166,7 +186,8 @@ function SimpleDialog(props) {
             credentials: 'include',
             body: JSON.stringify({ collectionId: collectionId, userName: value })
         });
-        await request.json();
+        const response = await request.json();
+        handleMessage(response.message);
         onClose(value);
     };
 

@@ -105,6 +105,7 @@ export default function NoteRow({ noteRow, manageNoteRows, setNoteSelected }) {
       credentials: 'include'
     });
     const response = await request.json();
+    console.log(response);
     setMessage(response.message);
     setOpen(true);
     handleClose1();
