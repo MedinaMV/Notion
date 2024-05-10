@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Paper, Grid, Avatar, Button, Typography, Link, Alert, AlertTitle } from '@mui/material';
 import AppRegistrationOutlinedIcon from '@mui/icons-material/AppRegistrationOutlined';
 import TextField from '@mui/material/TextField';
+import url from '../../api/api-calls.js';
 
 export default function Register() {
     const [user, setUser] = React.useState('');
@@ -14,7 +15,7 @@ export default function Register() {
 
     async function register() {
         setError(null);
-        const request = await fetch('/user/register', {
+        const request = await fetch(url + '/user/register', {
             method: 'POST',
             headers: { 'Content-type': 'application/json' },
             body: JSON.stringify({ user, email, password, confirm_password })
@@ -45,7 +46,7 @@ export default function Register() {
 
     return (
         <Grid>
-            <Paper elevation={10} style={{ padding: 20, height: '62vh', width: 500, margin: "40px auto" }}>
+            <Paper elevation={10} style={{ padding: 20, height: '600px', width: 500, margin: "40px auto" }}>
                 <Grid align='center'>
                     <Avatar style={{ backgroundColor: '#008fe6' }}><AppRegistrationOutlinedIcon></AppRegistrationOutlinedIcon></Avatar>
                     <h2>Register</h2>

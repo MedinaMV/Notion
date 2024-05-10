@@ -1,13 +1,22 @@
-import { Grid, Paper, Button, Dialog, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
+import { Grid, Snackbar, Paper, Button, Dialog, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import React from 'react';
+import URL from '../../api/api-calls.js';
+import { useNavigate } from 'react-router-dom';
 
 export default function Collection() {
     const [collections, setCollections] = React.useState([]);
+    const [open, setOpen] = React.useState(false);
+    const [message, setMessage] = React.useState('');
 
     React.useEffect(() => {
         (async () => {
-            const userId = window.sessionStorage.getItem('user');
-            const request = await fetch(`/collection/getAllCollections/${userId}`);
+            const request = await fetch(URL + `/collection/getAllCollections`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
             const response = await request.json();
             setCollections(response.collections ?? [])
         })();
@@ -16,10 +25,11 @@ export default function Collection() {
     async function createCollection() {
         let input = prompt('Set a name for your new collection');
         if (input) {
-            const request = await fetch('/collection/createCollection', {
+            const request = await fetch(URL + '/collection/createCollection', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: input, user: window.sessionStorage.getItem('user') })
+                body: JSON.stringify({ name: input }),
+                credentials: 'include',
             });
             const response = await request.json();
             const newCollection = { _id: response._id, name: input };
@@ -28,11 +38,21 @@ export default function Collection() {
     }
 
     async function deleteCollection(element) {
-        const request = await fetch(`/collection/${element._id}/deleteCollection`, {
-            method: 'DELETE'
+        const request = await fetch(URL + `/collection/${element._id}/deleteCollection`, {
+            method: 'DELETE',
+            credentials: 'include',
         });
         await request.json();
         setCollections(collections.filter(elemento => elemento !== element));
+    }
+
+    const handleMessage = (message) => {
+        setMessage(message);
+        setOpen(true);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
     }
 
     return (
@@ -43,6 +63,7 @@ export default function Collection() {
                         key={element._id}
                         collection={element}
                         deleteCollection={deleteCollection}
+                        handleMessage={handleMessage}
                     />
                 ))}
                 {
@@ -51,25 +72,35 @@ export default function Collection() {
                     </div>
                 }
             </div>
+            <Snackbar
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                open={open}
+                autoHideDuration={3500}
+                onClose={handleClose}
+                message={message}
+            />
         </div>
-
     );
 }
 
-//const emails = ['username@gmail.com', 'user02@gmail.com'];
-
-function CollectionElement({ collection, deleteCollection }) {
+function CollectionElement({ collection, deleteCollection, handleMessage }) {
     const [notes, setNotes] = React.useState([]);
     const [collectionNotes, setCollectionNotes] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const [open1, setOpen1] = React.useState(false);
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         (async () => {
-            const userId = window.sessionStorage.getItem('user');
-            const request = await fetch(`/notes/getAllNotes/${userId}`);
+            const request = await fetch(URL + `/user/getAllFriends`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
             const response = await request.json();
-            setNotes(response.notes ?? [])
+            setNotes(response.friends ?? [])
         })();
     }, []);
 
@@ -94,11 +125,15 @@ function CollectionElement({ collection, deleteCollection }) {
     }
 
     const handleClickOpenViewNotes = async () => {
-        const request = await fetch(`/collection/${collection._id}/getNotesByCollection`);
+        const request = await fetch(URL + `/collection/${collection._id}/getNotesByCollection`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+        });
         const response = await request.json();
-        console.log('Data recibida: ', response.notes);
-        setCollectionNotes(response.notes);
-        setOpen1(true);
+        navigate('/friends/editSharedNotes', { state: { rows: response.notes } });
     };
 
     return (
@@ -109,8 +144,8 @@ function CollectionElement({ collection, deleteCollection }) {
                         <h2>{collection.name}</h2>
                     </Grid>
                     <Grid style={{ marginTop: '100px' }}>
+                        <Button onClick={handleClickOpen} style={{ backgroundColor: '#008fe6', margin: "5px auto" }} variant="contained" type='submit' fullWidth> Share </Button>
                         <Button onClick={handleClickOpenViewNotes} style={{ backgroundColor: '#0005d7', margin: "5px auto" }} variant="contained" type='submit' fullWidth>View Notes</Button>
-                        <Button onClick={handleClickOpen} style={{ backgroundColor: '#008fe6', margin: "5px auto" }} variant="contained" type='submit' fullWidth>Add Note</Button>
                         <Button onClick={deleteCollec} style={{ backgroundColor: '#ff0018', margin: "5px auto" }} variant="contained" type='submit' fullWidth>Remove Collection</Button>
                     </Grid>
                 </Paper>
@@ -122,6 +157,7 @@ function CollectionElement({ collection, deleteCollection }) {
                 notes={notes}
                 collectionId={collection._id}
                 show={true}
+                handleMessage={handleMessage}
             />
             <SimpleDialog
                 selectedValue={selectedValue}
@@ -130,23 +166,28 @@ function CollectionElement({ collection, deleteCollection }) {
                 notes={collectionNotes}
                 collectionId={collection._id}
                 show={false}
+                handleMessage={handleMessage}
             />
         </>
     );
 }
 
 function SimpleDialog(props) {
-    const { onClose, selectedValue, open, notes, collectionId, show } = props;
+    const { onClose, selectedValue, open, notes, collectionId, show, handleMessage } = props;
 
     const handleClose = () => {
         onClose(selectedValue);
     };
 
     const handleListItemClick = async (value) => {
-        const request = await fetch(`/collection/${collectionId}/addNote/${value._id}`, {
-            method: 'POST'
+        const request = await fetch(URL + '/collection/shareCollection', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ collectionId: collectionId, userName: value })
         });
-        await request.json();
+        const response = await request.json();
+        handleMessage(response.message);
         onClose(value);
     };
 
@@ -156,13 +197,13 @@ function SimpleDialog(props) {
 
     return (
         <Dialog onClose={handleClose} open={open}>
-            <DialogTitle> Choose a note </DialogTitle>
+            <DialogTitle> Choose one </DialogTitle>
             <List sx={{ pt: 0 }}>
                 {notes.map((note) => (
                     (show ?
                         (
                             <ListItem disableGutters key={note._id}>
-                                <ListItemButton onClick={() => handleListItemClick(note)}>
+                                <ListItemButton onClick={() => handleListItemClick(note.title)}>
                                     <ListItemText primary={note.title} />
                                 </ListItemButton>
                             </ListItem>
@@ -175,7 +216,6 @@ function SimpleDialog(props) {
                             </ListItem>
                         )
                     )
-
                 ))}
                 <ListItem disableGutters>
                 </ListItem>
