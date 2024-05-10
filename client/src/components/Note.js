@@ -1,6 +1,7 @@
 import Paragraph from "./Paragraph";
 import React from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import url from '../api/api-calls.js';
 
 export default function Note({ title, elements, noteId, setNoteSelected }) {
 
@@ -8,7 +9,7 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
     const flag = event.target.getAttribute('data');
     let Id = '';
     if (flag === 'paragraph') {
-      const request = await fetch(`/notes/${noteId}/addParagraph`, { method: 'POST', headers: { 'Content-type': 'application/json' } });
+      const request = await fetch(url + `/notes/${noteId}/addParagraph`, { method: 'POST', headers: { 'Content-type': 'application/json' }, credentials: 'include' });
       const body = await request.json();
       Id = body._id;
 
@@ -17,7 +18,7 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
 
       setNoteSelected(prevState => ({ ...prevState, elements: newElements }));
     } else if (flag === 'list') {
-      const request = await fetch(`/notes/${noteId}/addList`, { method: 'POST', headers: { 'Content-type': 'application/json' } });
+      const request = await fetch(url + `/notes/${noteId}/addList`, { method: 'POST', headers: { 'Content-type': 'application/json' }, credentials: 'include' });
       const body = await request.json();
 
       let newElements = elements;
@@ -26,7 +27,7 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
 
       setNoteSelected(prevState => ({ ...prevState, elements: newElements }));
     } else {
-      const request = await fetch(`/notes/${noteId}/addImage`, { method: 'POST', headers: { 'Content-type': 'application/json' } });
+      const request = await fetch(url + `/notes/${noteId}/addImage`, { method: 'POST', headers: { 'Content-type': 'application/json' }, credentials: 'include' });
       const body = await request.json();
       Id = body._id;
       let newElements = elements;
@@ -39,18 +40,15 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
   const onDragEnd = async (result) => {
     if (!result.destination) return;
 
-    /*console.log(elements[result.destination.index]);
-    console.log(elements[result.source.index]);
-    console.log(result);*/
-
     const items = Array.from(elements);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
     elements = items;
 
-    const request = await fetch(`/notes/${noteId}/moveNoteElements`, {
+    const request = await fetch(url + `/notes/${noteId}/moveNoteElements`, {
       method: 'POST',
       headers: { 'Content-type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         sourceId: elements[result.source.index]._id, 
         sourceType: elements[result.source.index].type, 
@@ -58,9 +56,7 @@ export default function Note({ title, elements, noteId, setNoteSelected }) {
         destinationType: elements[result.destination.index].type
       })
     });
-
     await request.json();
-    //console.log(response);
 
   };
 
